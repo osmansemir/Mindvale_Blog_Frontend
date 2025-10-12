@@ -11,23 +11,20 @@ export function ArticleProvider({ children }) {
 
   // Add new article
   const addArticle = (newArticle) => {
-    // ✅ Create new array with spread operator (don't mutate!)
     setArticles([...articles, newArticle]);
   };
 
   // Update existing articleexport
-  const updateArticle = (slug, updatedData) => {
-    // ✅ Map creates a new array
+  const updateArticle = (id, updatedData) => {
     setArticles(
       articles.map((article) =>
-        article.slug === slug ? { ...article, ...updatedData } : article,
+        article.id === id ? { ...article, ...updatedData } : article,
       ),
     );
   };
 
   // Delete article
   const deleteArticle = (slug) => {
-    // ✅ Filter creates a new array
     setArticles(articles.filter((article) => article.slug !== slug));
   };
 
@@ -43,23 +40,32 @@ export function ArticleProvider({ children }) {
     );
   };
 
+  // Get articles by ID
+  const getArticlesById = (id) => {
+    return articles.find((article) => article.id === id);
+  };
+
   // Get featured articles
   const getFeaturedArticles = () => {
     return articles.filter((article) => article.featured);
   };
 
-  // Get related articles (based on shared tags)
-  const getRelatedArticles = (currentSlug, limit = 4) => {
-    const currentArticle = articles.find((a) => a.slug === currentSlug);
-    if (!currentArticle) return [];
+  // Get related articles (with scored and sorted matching)
+  function getRelatedArticles(currentArticle, limit = 4) {
+    const currentTags = new Set(currentArticle.tags);
+    const articlesWithScores = mockArticles
+      .filter((article) => article.id !== currentArticle.id) // Exclude the current article
+      .map((article) => {
+        const sharedTags = article.tags.filter((tag) => currentTags.has(tag));
+        return { ...article, score: sharedTags.length };
+      })
+      .filter((article) => article.score > 0); // Only include articles with at least one shared tag
 
-    return articles
-      .filter((article) => article.slug !== currentSlug)
-      .filter((article) =>
-        article.tags.some((tag) => currentArticle.tags.includes(tag)),
-      )
+    // Sort by score (descending) and then by date (descending) as a tie-breaker
+    return articlesWithScores
+      .sort((a, b) => b.score - a.score || new Date(b.date) - new Date(a.date))
       .slice(0, limit);
-  };
+  }
 
   // Search articles by title or description
   const searchArticles = (query) => {
@@ -93,6 +99,7 @@ export function ArticleProvider({ children }) {
     getRelatedArticles,
     searchArticles,
     getAllTags,
+    getArticlesById,
   };
 
   return (

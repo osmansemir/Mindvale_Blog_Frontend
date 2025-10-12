@@ -43,8 +43,17 @@ const articleSchema = z.object({
     .min(10, "Description must be at least 10 characters")
     .max(500, "Description must be less than 500 characters"),
   tags: z
-    .array(z.string().min(1, "Each tag must have at least one character"))
-    .min(1, "At least one tag is required"),
+    .union([z.string(), z.array(z.string())])
+    .transform((val) => {
+      if (Array.isArray(val)) return val.map((t) => t.trim()).filter(Boolean);
+      return val
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+    })
+    .refine((arr) => arr.length > 0, {
+      message: "At least one tag is required",
+    }),
   author: z
     .string()
     .min(2, "Author name must be at least 2 characters")
@@ -104,7 +113,6 @@ function ArticleForm({ article: initialArticle, onSave }) {
   const onSubmit = async (data) => {
     await waiting;
     onSave(data);
-    console.log("Article Data:", data);
     setOpen(false);
   };
 
