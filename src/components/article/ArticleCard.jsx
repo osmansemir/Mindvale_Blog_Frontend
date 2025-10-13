@@ -22,7 +22,7 @@ function ArticleCard({ article, isAdmin }) {
           <ItemDescription>{article.description}</ItemDescription>
         )}
       </ItemContent>
-      {isAdmin && <ArticleActions slug={article.slug} />}
+      {isAdmin && <ArticleActions id={article._id} />}
       <ItemFooter>
         <Link to={`/articles/${article.slug}`}>Read more</Link>
       </ItemFooter>

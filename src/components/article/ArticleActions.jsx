@@ -4,12 +4,12 @@ import { useArticles } from "../../hooks/useArticles";
 import AlertAction from "./AlertAction";
 import { useNavigate } from "react-router-dom";
 
-function ArtcileActions({ slug }) {
+function ArtcileActions({ id }) {
   const { deleteArticle } = useArticles();
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/admin/articles/edit/${slug}`);
+    navigate(`/admin/articles/edit/${id}`);
   };
 
   return (
@@ -17,7 +17,7 @@ function ArtcileActions({ slug }) {
       <Button onClick={() => handleClick()} size="sm" className="">
         Edit
       </Button>
-      <AlertAction slug={slug} action={deleteArticle}>
+      <AlertAction id={id} action={deleteArticle}>
         <Button size="sm" className="">
           Delete
         </Button>

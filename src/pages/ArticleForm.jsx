@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect } from "react";
 
 // Define validation schema
@@ -58,7 +59,8 @@ const articleSchema = z.object({
     .string()
     .min(2, "Author name must be at least 2 characters")
     .max(50, "Author name must be less than 50 characters"),
-  markdown: z.string().optional(),
+  markdown: z.string().min(20, "Markdown must be at least 20 characters"),
+  featured: z.boolean().optional(),
 });
 
 function ArticleForm({ article: initialArticle, onSave }) {
@@ -78,6 +80,7 @@ function ArticleForm({ article: initialArticle, onSave }) {
       tags: initialArticle?.tags || "",
       author: initialArticle?.author || "",
       markdown: initialArticle?.markdown || "",
+      featured: initialArticle?.featured || "",
     },
   });
 
@@ -218,6 +221,11 @@ function ArticleForm({ article: initialArticle, onSave }) {
                   <FieldError>{errors.author.message}</FieldError>
                 )}
               </Field>
+
+              <Field orientation="horizontal">
+                <FieldLabel htmlFor="featured">Featured Article</FieldLabel>
+                <Checkbox id="featured" />
+              </Field>
             </FieldGroup>
           </FieldSet>
 
@@ -229,6 +237,9 @@ function ArticleForm({ article: initialArticle, onSave }) {
               {isSubmitting ? "Saving..." : "Save Article"}
             </Button>
           </DialogFooter>
+          {errors.markdown && (
+            <FieldError>{errors.markdown.message}</FieldError>
+          )}
         </form>
       </DialogContent>
     </Dialog>

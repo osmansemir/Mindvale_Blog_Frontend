@@ -18,12 +18,8 @@ function ArticleList({ articles, isAdmin = false }) {
       <ItemGroup>
         {isAdmin && <NewArticleButton />}
         {articles.map((article, index) => (
-          <React.Fragment key={article.slug}>
-            <ArticleCard
-              key={article.slug}
-              article={article}
-              isAdmin={isAdmin}
-            />
+          <React.Fragment key={article._id}>
+            <ArticleCard article={article} isAdmin={isAdmin} />
             {index !== articles.length - 1 && <ItemSeparator />}
           </React.Fragment>
         ))}

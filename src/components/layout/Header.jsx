@@ -27,6 +27,11 @@ function Header() {
                 <Link to="/admin/articles/new">Markdown Editor</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link to="/admin">Admin</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
         <ModeToggle />

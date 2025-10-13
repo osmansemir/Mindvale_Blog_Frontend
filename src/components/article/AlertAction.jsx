@@ -10,7 +10,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export function AlertAction({ children, action, slug }) {
+export function AlertAction({ children, action, id }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
@@ -24,7 +24,7 @@ export function AlertAction({ children, action, slug }) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => action(slug)}>
+          <AlertDialogAction onClick={() => action(id)}>
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>

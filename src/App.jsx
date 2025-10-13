@@ -33,7 +33,7 @@ function App() {
               />
               <Route path="/admin/articles/new" element={<MarkdownEditor />} />
               <Route
-                path="/admin/articles/edit/:slug"
+                path="/admin/articles/edit/:id"
                 element={<MarkdownEditor />}
               />
               <Route

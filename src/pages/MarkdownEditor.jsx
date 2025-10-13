@@ -26,22 +26,21 @@ function MarkdownEditor() {
     description: "",
   });
 
-  const { articles, getArticleBySlug, addArticle, updateArticle } =
-    useArticles();
+  const { getArticleById, addArticle, updateArticle } = useArticles();
   const navigate = useNavigate();
-  const { slug } = useParams();
+  const { id } = useParams();
 
   // Load article if editing
   useEffect(() => {
-    if (slug) {
-      const existingArticle = getArticleBySlug(slug);
+    if (id) {
+      const existingArticle = getArticleById(id);
       if (existingArticle) {
         setArticle(existingArticle);
       } else {
         navigate("/404", { replace: true });
       }
     }
-  }, [slug]);
+  }, [id]); //eslint-disable-line
 
   // Handle markdown changes in real-time
   const handleMarkdownChange = (markdown) => {
@@ -52,36 +51,18 @@ function MarkdownEditor() {
   };
 
   // if no article id, we are creating a new article
-  const inEditingMode = !!article?.id;
+  const inEditingMode = !!article?._id;
 
   const onSave = (newData) => {
     if (inEditingMode) {
-      updateArticle(article.id, newData);
+      updateArticle(article._id, newData);
       console.log("Edits saved:", newData);
     } else {
-      const nextId =
-        articles.length > 0 ? Math.max(...articles.map((a) => a.id)) + 1 : 1;
-      const newArticle = {
-        id: nextId,
-        ...newData,
-      };
-      addArticle(newArticle);
-      console.log("Article saved:", newArticle);
+      addArticle(newData);
+      console.log("Article saved:", newData);
     }
     navigate(-1);
   };
-
-  // const onSave = (article) => {
-  //   // if article with slug exists, update it, else add new
-  //   if (getArticleById(article.slug)) {
-  //     // setArticle((prev) => ({
-  //     //   ...prev,
-  //     //   ...article,
-  //     // }));
-  //     console.log("Article saved:", article);
-  //     // TODO:
-  //     // toast.success("Article saved successfully!");
-  //   }
 
   const wordCount = article.markdown
     .trim()
@@ -111,7 +92,7 @@ function MarkdownEditor() {
           <ResizablePanel>
             {/* Markdown Editor */}
             <div className="h-full">
-              <Item className="h-12 bg-red-400 rounded-none">
+              <Item className="h-12 text-primary-foreground bg-sidebar-accent rounded-none">
                 <ItemTitle>Markdown</ItemTitle>
               </Item>
               <Textarea
@@ -127,7 +108,7 @@ function MarkdownEditor() {
 
           <ResizablePanel>
             {/* Preview */}
-            <Item className="h-12 bg-blue-400 rounded-none">
+            <Item className="h-12 text-primary-foreground bg-sidebar-accent rounded-none">
               <ItemTitle>Preview</ItemTitle>
             </Item>
             <div className="h-full p-3 overflow-y-auto pb-16">
