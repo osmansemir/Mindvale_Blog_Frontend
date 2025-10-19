@@ -8,20 +8,56 @@ export function ArticleProvider({ children }) {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🧠 Fetch all articles from the backend when the app loads
-  useEffect(() => {
-    async function fetchArticles() {
-      try {
-        const res = await api.get("/articles");
-        setArticles(res.data);
-      } catch (error) {
-        console.error("Failed to fetch articles:", error);
-      } finally {
-        setLoading(false);
+  // Search, filter, and pagination state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 10,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
+
+  // 🧠 Fetch all articles from the backend with filters
+  const fetchArticles = async () => {
+    setLoading(true);
+    try {
+      // Build query params
+      const params = new URLSearchParams();
+      if (searchQuery) params.append("search", searchQuery);
+      if (selectedTags.length > 0) params.append("tags", selectedTags.join(","));
+      if (sortBy) params.append("sortBy", sortBy);
+      if (sortOrder) params.append("order", sortOrder);
+      params.append("page", currentPage.toString());
+      params.append("limit", pageSize.toString());
+
+      const res = await api.get(`/articles?${params.toString()}`);
+
+      // Backend returns { data: [...], pagination: {...} }
+      const articlesData = res.data.data || res.data;
+      setArticles(Array.isArray(articlesData) ? articlesData : []);
+
+      // Update pagination if available
+      if (res.data.pagination) {
+        setPagination(res.data.pagination);
       }
+    } catch (error) {
+      console.error("Failed to fetch articles:", error);
+      setArticles([]); // Set empty array on error
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchArticles();
-  }, []);
+  }, [searchQuery, selectedTags, sortBy, sortOrder, currentPage, pageSize]);
 
   // ➕ Add a new article
   const addArticle = async (newArticle) => {
@@ -104,6 +140,86 @@ export function ArticleProvider({ children }) {
     return Array.from(tagSet).sort();
   };
 
+  // =============== WORKFLOW FUNCTIONS ===============
+
+  // 📝 Get my articles (for authors)
+  const getMyArticles = async (status = null) => {
+    try {
+      const url = status
+        ? `/articles/my/articles?status=${status}`
+        : "/articles/my/articles";
+      const res = await api.get(url);
+      const articlesData = res.data.data || res.data;
+      return Array.isArray(articlesData) ? articlesData : [];
+    } catch (error) {
+      console.error("Failed to fetch my articles:", error);
+      throw error;
+    }
+  };
+
+  // 📤 Submit article for review
+  const submitArticleForReview = async (id) => {
+    try {
+      const res = await api.post(`/articles/${id}/submit`);
+      // Update local state
+      setArticles(
+        articles.map((article) =>
+          article._id === id ? { ...article, status: "pending", submittedAt: new Date() } : article
+        )
+      );
+      return res.data;
+    } catch (error) {
+      console.error("Failed to submit article:", error);
+      throw error;
+    }
+  };
+
+  // 📋 Get pending articles (for admins)
+  const getPendingArticles = async () => {
+    try {
+      const res = await api.get("/articles/admin/pending");
+      const articlesData = res.data.data || res.data;
+      return Array.isArray(articlesData) ? articlesData : [];
+    } catch (error) {
+      console.error("Failed to fetch pending articles:", error);
+      throw error;
+    }
+  };
+
+  // ✅ Approve article (admin only)
+  const approveArticle = async (id) => {
+    try {
+      const res = await api.post(`/articles/${id}/approve`);
+      // Update local state
+      setArticles(
+        articles.map((article) =>
+          article._id === id ? res.data.article || res.data : article
+        )
+      );
+      return res.data;
+    } catch (error) {
+      console.error("Failed to approve article:", error);
+      throw error;
+    }
+  };
+
+  // ❌ Reject article (admin only)
+  const rejectArticle = async (id, reason) => {
+    try {
+      const res = await api.post(`/articles/${id}/reject`, { reason });
+      // Update local state
+      setArticles(
+        articles.map((article) =>
+          article._id === id ? res.data.article || res.data : article
+        )
+      );
+      return res.data;
+    } catch (error) {
+      console.error("Failed to reject article:", error);
+      throw error;
+    }
+  };
+
   const value = {
     articles,
     loading,
@@ -117,6 +233,27 @@ export function ArticleProvider({ children }) {
     getRelatedArticles,
     searchArticles,
     getAllTags,
+    // Workflow functions
+    getMyArticles,
+    submitArticleForReview,
+    getPendingArticles,
+    approveArticle,
+    rejectArticle,
+    // Search, filter, and pagination
+    searchQuery,
+    setSearchQuery,
+    selectedTags,
+    setSelectedTags,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    pagination,
+    fetchArticles,
   };
 
   return (

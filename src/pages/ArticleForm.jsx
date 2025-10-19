@@ -25,20 +25,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect } from "react";
+import { useAuth } from "../hooks/useAuth";
 
-// Define validation schema
+// Define validation schema (slug, author, and featured are auto-generated)
 const articleSchema = z.object({
   title: z
     .string()
     .min(3, "Title must be at least 3 characters")
     .max(100, "Title must be less than 100 characters"),
-  slug: z
-    .string()
-    .min(3, "Slug is required")
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Slug must be lowercase with hyphens only and should not start or end with a hyphen",
-    ),
   description: z
     .string()
     .min(10, "Description must be at least 10 characters")
@@ -55,15 +49,12 @@ const articleSchema = z.object({
     .refine((arr) => arr.length > 0, {
       message: "At least one tag is required",
     }),
-  author: z
-    .string()
-    .min(2, "Author name must be at least 2 characters")
-    .max(50, "Author name must be less than 50 characters"),
   markdown: z.string().min(20, "Markdown must be at least 20 characters"),
-  featured: z.boolean().optional(),
 });
 
 function ArticleForm({ article: initialArticle, onSave }) {
+  const { user } = useAuth(); // Get authenticated user
+
   const {
     register,
     handleSubmit,
@@ -75,12 +66,9 @@ function ArticleForm({ article: initialArticle, onSave }) {
     resolver: zodResolver(articleSchema),
     defaultValues: {
       title: initialArticle?.title || "",
-      slug: initialArticle?.slug || "",
       description: initialArticle?.description || "",
       tags: initialArticle?.tags || "",
-      author: initialArticle?.author || "",
       markdown: initialArticle?.markdown || "",
-      featured: initialArticle?.featured || "",
     },
   });
 
@@ -101,21 +89,20 @@ function ArticleForm({ article: initialArticle, onSave }) {
       .replace(/-+/g, "-");
   };
 
-  // Watch title field to auto-generate slug
-  const titleValue = watch("title");
-
-  useEffect(() => {
-    if (titleValue) {
-      const slug = generateSlug(titleValue);
-      setValue("slug", slug);
-    }
-  }, [titleValue, setValue]);
-
-  const waiting = new Promise((resolve) => setTimeout(resolve, 4000));
-
   const onSubmit = async (data) => {
-    await waiting;
-    onSave(data);
+    // Auto-generate slug from title
+    const slug = generateSlug(data.title);
+
+    // Auto-populate author from authenticated user
+    // Featured is not set (only admins can feature articles later)
+    const articleData = {
+      ...data,
+      slug,
+      author: user?.name || "Unknown",
+      // Status will be set to "draft" by backend by default
+    };
+
+    onSave(articleData);
     setOpen(false);
   };
 
@@ -128,8 +115,7 @@ function ArticleForm({ article: initialArticle, onSave }) {
         <DialogHeader>
           <DialogTitle>Save Article</DialogTitle>
           <DialogDescription>
-            Fill in all the details and hit Save. The slug will auto-generate
-            from the title.
+            Fill in the article details. The slug and author will be automatically set.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -150,23 +136,6 @@ function ArticleForm({ article: initialArticle, onSave }) {
                 {errors.title && (
                   <FieldError>{errors.title.message}</FieldError>
                 )}
-              </Field>
-
-              {/* Slug Field */}
-              <Field>
-                <FieldLabel htmlFor="slug">Slug *</FieldLabel>
-                <Input
-                  id="slug"
-                  placeholder="auto-generated-slug"
-                  {...register("slug")}
-                  aria-invalid={errors.slug ? "true" : "false"}
-                />
-                {!errors.slug && (
-                  <FieldDescription>
-                    Auto-generated from title. Use lowercase and hyphens.
-                  </FieldDescription>
-                )}
-                {errors.slug && <FieldError>{errors.slug.message}</FieldError>}
               </Field>
 
               {/* Description Field */}
@@ -205,26 +174,15 @@ function ArticleForm({ article: initialArticle, onSave }) {
                 {errors.tags && <FieldError>{errors.tags.message}</FieldError>}
               </Field>
 
-              {/* Author Field */}
+              {/* Author info display (read-only) */}
               <Field>
-                <FieldLabel htmlFor="author">Author *</FieldLabel>
-                <Input
-                  id="author"
-                  placeholder="Your name"
-                  {...register("author")}
-                  aria-invalid={errors.author ? "true" : "false"}
-                />
-                {!errors.author && (
-                  <FieldDescription>2-50 characters</FieldDescription>
-                )}
-                {errors.author && (
-                  <FieldError>{errors.author.message}</FieldError>
-                )}
-              </Field>
-
-              <Field orientation="horizontal">
-                <FieldLabel htmlFor="featured">Featured Article</FieldLabel>
-                <Checkbox id="featured" />
+                <FieldLabel>Author</FieldLabel>
+                <div className="px-3 py-2 bg-muted rounded-md text-sm">
+                  {user?.name || "Loading..."}
+                </div>
+                <FieldDescription>
+                  Automatically set from your account
+                </FieldDescription>
               </Field>
             </FieldGroup>
           </FieldSet>
