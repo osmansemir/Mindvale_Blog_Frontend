@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 
+//eslint-disable-next-line
 export const ThemeProviderContext = createContext({
   theme: "system",
   setTheme: () => null,

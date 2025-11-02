@@ -16,6 +16,7 @@ import AdminReviewQueue from "./pages/AdminReviewQueue";
 import UsersList from "./pages/admin/UsersList";
 import UserDetail from "./pages/admin/UserDetail";
 import { Toaster } from "sonner";
+import DashboardLayout from "./components/layout/DashboardLayout";
 
 function App() {
   return (
@@ -43,99 +44,68 @@ function App() {
                 }
               />
 
-              {/* Authentication Routes - Only accessible to non-authenticated users */}
-              <Route
-                path="/login"
-                element={
-                  <PublicRoute>
-                    <Login />
-                  </PublicRoute>
-                }
-              />
-              <Route
-                path="/register"
-                element={
-                  <PublicRoute>
-                    <Register />
-                  </PublicRoute>
-                }
-              />
+              {/* Authentication Routes */}
+              <Route element={<PublicRoute />}>
+                <Route path="/sign-in" element={<Login />} />
+                <Route path="/sign-up" element={<Register />} />
+              </Route>
 
-              {/* Protected Author/Admin Routes - My Articles */}
+              {/* Protected Author/Admin Routes */}
               <Route
-                path="/my-articles"
-                element={
-                  <ProtectedRoute allowedRoles={["author", "admin"]}>
+                element={<ProtectedRoute allowedRoles={["author", "admin"]} />}
+              >
+                <Route
+                  path="/articles/my-articles"
+                  element={
                     <Layout>
                       <MyArticles />
                     </Layout>
-                  </ProtectedRoute>
-                }
-              />
+                  }
+                />
 
-              {/* Protected Admin Routes - Admin only */}
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
-                    <Layout>
+                <Route path="/articles/new" element={<MarkdownEditor />} />
+
+                <Route path="/articles/edit/:id" element={<MarkdownEditor />} />
+              </Route>
+
+              {/* Protected Admin Routes  */}
+              <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+                <Route
+                  path="/admin/dashboard"
+                  element={
+                    <DashboardLayout>
                       <Admin />
-                    </Layout>
-                  </ProtectedRoute>
-                }
-              />
+                    </DashboardLayout>
+                  }
+                />
 
-              {/* Protected Admin Routes - Review Queue */}
-              <Route
-                path="/admin/review-queue"
-                element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
+                <Route
+                  path="/admin/review-queue"
+                  element={
                     <Layout>
                       <AdminReviewQueue />
                     </Layout>
-                  </ProtectedRoute>
-                }
-              />
+                  }
+                />
 
-              {/* Protected Admin Routes - User Management */}
-              <Route
-                path="/admin/users"
-                element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
+                <Route
+                  path="/admin/users"
+                  element={
                     <Layout>
                       <UsersList />
                     </Layout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/users/:id"
-                element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
+                  }
+                />
+
+                <Route
+                  path="/admin/users/:id"
+                  element={
                     <Layout>
                       <UserDetail />
                     </Layout>
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Protected Author/Admin Routes - Article Creation */}
-              <Route
-                path="/admin/articles/new"
-                element={
-                  <ProtectedRoute allowedRoles={["author", "admin"]}>
-                    <MarkdownEditor />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/articles/edit/:id"
-                element={
-                  <ProtectedRoute allowedRoles={["author", "admin"]}>
-                    <MarkdownEditor />
-                  </ProtectedRoute>
-                }
-              />
+                  }
+                />
+              </Route>
 
               {/* 404 Routes */}
               <Route

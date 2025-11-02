@@ -26,7 +26,7 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="relative w-full max-w-2xl">
+    <div className="relative w-44 max-w-2xl">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -49,7 +49,8 @@ export default function SearchBar() {
       </div>
       {searchQuery && (
         <p className="text-sm text-muted-foreground mt-2">
-          Found {pagination.totalItems} result{pagination.totalItems !== 1 ? "s" : ""}
+          Found {pagination.totalItems} result
+          {pagination.totalItems !== 1 ? "s" : ""}
         </p>
       )}
     </div>

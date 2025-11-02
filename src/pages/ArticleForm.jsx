@@ -23,7 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 
@@ -52,31 +51,29 @@ const articleSchema = z.object({
   markdown: z.string().min(20, "Markdown must be at least 20 characters"),
 });
 
-function ArticleForm({ article: initialArticle, onSave }) {
+function ArticleForm({ article: article, onSave }) {
   const { user } = useAuth(); // Get authenticated user
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    watch,
-    setValue,
     reset,
   } = useForm({
     resolver: zodResolver(articleSchema),
     defaultValues: {
-      title: initialArticle?.title || "",
-      description: initialArticle?.description || "",
-      tags: initialArticle?.tags || "",
-      markdown: initialArticle?.markdown || "",
+      title: article?.title || "",
+      description: article?.description || "",
+      tags: article?.tags || "",
+      markdown: article?.markdown || "",
     },
   });
 
   useEffect(() => {
-    if (initialArticle) {
-      reset(initialArticle);
+    if (article) {
+      reset(article);
     }
-  }, [initialArticle, reset]);
+  }, [article, reset]);
 
   const [open, setOpen] = useState(false);
 
@@ -94,7 +91,6 @@ function ArticleForm({ article: initialArticle, onSave }) {
     const slug = generateSlug(data.title);
 
     // Auto-populate author from authenticated user
-    // Featured is not set (only admins can feature articles later)
     const articleData = {
       ...data,
       slug,
@@ -115,7 +111,8 @@ function ArticleForm({ article: initialArticle, onSave }) {
         <DialogHeader>
           <DialogTitle>Save Article</DialogTitle>
           <DialogDescription>
-            Fill in the article details. The slug and author will be automatically set.
+            Fill in the article details. The slug and author will be
+            automatically set.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

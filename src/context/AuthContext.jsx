@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import api from "../api/axios";
 
+//eslint-disable-next-line
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -12,7 +13,7 @@ export function AuthProvider({ children }) {
   // Check authentication status on mount
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, []); //eslint-disable-line
 
   // Update axios default headers when token changes
   useEffect(() => {
@@ -40,51 +41,17 @@ export function AuthProvider({ children }) {
       // Set token in headers for this request
       api.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
 
-      // TODO: Add a dedicated /api/auth/me endpoint in backend to verify token
-      // For now, we'll extract user data from the token (not ideal but works)
-      // In production, always verify tokens server-side
+      // ✅ Verify token with server
+      const res = await api.get("/auth/me"); // must exist in your backend
 
-      const tokenData = parseJWT(storedToken);
-
-      if (tokenData && tokenData.exp * 1000 > Date.now()) {
-        setUser({
-          id: tokenData.id,
-          name: tokenData.name,
-          email: tokenData.email,
-          role: tokenData.role,
-        });
-        setToken(storedToken);
-        setIsAuthenticated(true);
-      } else {
-        // Token expired
-        handleLogout();
-      }
+      setUser(res.data.user);
+      setToken(storedToken);
+      setIsAuthenticated(true);
     } catch (error) {
       console.error("Auth check failed:", error);
       handleLogout();
     } finally {
       setLoading(false);
-    }
-  }
-
-  /**
-   * Parse JWT token (client-side only for reading claims)
-   * WARNING: Never trust client-side JWT parsing for security decisions
-   */
-  function parseJWT(token) {
-    try {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      );
-      return JSON.parse(jsonPayload);
-    } catch (error) {
-      console.error("Failed to parse JWT:", error);
-      return null;
     }
   }
 
@@ -112,11 +79,11 @@ export function AuthProvider({ children }) {
         user: userData,
       };
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Sign In failed:", error);
 
       const errorMessage =
         error.response?.data?.message ||
-        "Login failed. Please check your credentials.";
+        "Sign In failed. Please check your credentials.";
 
       throw new Error(errorMessage);
     }
@@ -141,15 +108,15 @@ export function AuthProvider({ children }) {
 
       return {
         success: true,
-        message: response.data.message || "User registered successfully",
+        message: response.data.message || "User Signed Up successfully",
       };
     } catch (error) {
-      console.error("Registration failed:", error);
+      console.error("Sign Up failed:", error);
 
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.errors?.[0]?.message ||
-        "Registration failed. Please try again.";
+        "Sign Up failed. Please try again.";
 
       throw new Error(errorMessage);
     }
@@ -271,6 +238,7 @@ export function AuthProvider({ children }) {
     token,
     loading,
     isAuthenticated,
+    setIsAuthenticated,
     login,
     register,
     logout,

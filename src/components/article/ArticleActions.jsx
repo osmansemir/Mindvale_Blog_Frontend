@@ -9,7 +9,7 @@ function ArtcileActions({ id }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/admin/articles/edit/${id}`);
+    navigate(`/articles/edit/${id}`);
   };
 
   return (

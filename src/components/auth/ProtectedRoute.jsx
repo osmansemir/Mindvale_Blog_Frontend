@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 /**
@@ -14,26 +14,29 @@ import { useAuth } from "../../hooks/useAuth";
  *   <AdminDashboard />
  * </ProtectedRoute>
  */
-export default function ProtectedRoute({ children, allowedRoles, fallback }) {
+
+export default function ProtectedRoute({ allowedRoles, fallback }) {
   const { user, isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
   // Show loading state while checking authentication
   if (loading) {
-    return fallback || (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Loading...</p>
+    return (
+      fallback || (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
         </div>
-      </div>
+      )
     );
   }
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
     // Save the attempted location to redirect back after login
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
   // Check role-based access if allowedRoles is specified
@@ -68,5 +71,5 @@ export default function ProtectedRoute({ children, allowedRoles, fallback }) {
   }
 
   // User is authenticated and has required role (if specified)
-  return children;
+  return <Outlet />;
 }

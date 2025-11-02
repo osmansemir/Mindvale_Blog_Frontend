@@ -7,7 +7,7 @@ function Admin() {
 
   return (
     <main className="overflow-y-auto flex-1 md:max-w-2xl px-4 mx-auto pt-16">
-      <ArticleList articles={articles} isAdmin={isAdmin}></ArticleList>
+      <h1>hello</h1>
     </main>
   );
 }

@@ -15,8 +15,18 @@ export default function SortDropdown() {
   const { sortBy, sortOrder, setSortBy, setSortOrder } = useArticles();
 
   const sortOptions = [
-    { value: "createdAt-desc", label: "Newest First", sortBy: "createdAt", order: "desc" },
-    { value: "createdAt-asc", label: "Oldest First", sortBy: "createdAt", order: "asc" },
+    {
+      value: "createdAt-desc",
+      label: "Newest First",
+      sortBy: "createdAt",
+      order: "desc",
+    },
+    {
+      value: "createdAt-asc",
+      label: "Oldest First",
+      sortBy: "createdAt",
+      order: "asc",
+    },
     { value: "title-asc", label: "Title A-Z", sortBy: "title", order: "asc" },
     { value: "title-desc", label: "Title Z-A", sortBy: "title", order: "desc" },
   ];
@@ -32,8 +42,7 @@ export default function SortDropdown() {
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+    <div className="flex items-start gap-2">
       <Select value={currentValue} onValueChange={handleChange}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Sort by..." />
@@ -41,6 +50,7 @@ export default function SortDropdown() {
         <SelectContent>
           {sortOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>
+              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
               {option.label}
             </SelectItem>
           ))}

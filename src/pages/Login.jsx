@@ -6,16 +6,20 @@ import { z } from "zod";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "../components/ui/card";
 import { Field, FieldLabel, FieldError } from "../components/ui/field";
 import { Loader2 } from "lucide-react";
 
 // Validation schema
 const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Invalid email format"),
+  email: z.string().min(1, "Email is required").email("Invalid email format"),
   password: z
     .string()
     .min(1, "Password is required")
@@ -55,7 +59,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">Login</CardTitle>
+          <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
           <CardDescription>
             Enter your credentials to access your account
           </CardDescription>
@@ -81,9 +85,7 @@ export default function Login() {
                 disabled={isLoading}
                 className={errors.email ? "border-red-500" : ""}
               />
-              {errors.email && (
-                <FieldError>{errors.email.message}</FieldError>
-              )}
+              {errors.email && <FieldError>{errors.email.message}</FieldError>}
             </Field>
 
             {/* Password Field */}
@@ -103,20 +105,16 @@ export default function Login() {
             </Field>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col space-y-4 mt-6">
             {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Logging in...
+                  Signing in...
                 </>
               ) : (
-                "Login"
+                "Sign In"
               )}
             </Button>
 
@@ -124,10 +122,10 @@ export default function Login() {
             <p className="text-sm text-center text-muted-foreground">
               Don't have an account?{" "}
               <Link
-                to="/register"
+                to="/sign-up"
                 className="text-primary hover:underline font-medium"
               >
-                Register here
+                Sign Up here
               </Link>
             </p>
           </CardFooter>

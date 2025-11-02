@@ -8,12 +8,14 @@ import { AuthContext } from "../context/AuthContext";
  * @property {string|null} token - JWT token
  * @property {boolean} loading - Loading state during auth check
  * @property {boolean} isAuthenticated - Whether user is authenticated
+ * @property {Function} setIsAuthenticated - set isAuthenticated state
  * @property {Function} login - Login function (email, password)
  * @property {Function} register - Register function (name, email, password, role)
  * @property {Function} logout - Logout function
  * @property {Function} checkAuth - Revalidate authentication
  * @property {Function} updateUser - Update user data in context
  */
+
 export function useAuth() {
   const context = useContext(AuthContext);
 

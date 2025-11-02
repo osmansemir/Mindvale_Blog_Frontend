@@ -6,6 +6,8 @@ export const ArticleContext = createContext();
 
 export function ArticleProvider({ children }) {
   const [articles, setArticles] = useState([]);
+  const [slugs, setSlugs] = useState([]);
+  const [allTags, setAllTags] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Search, filter, and pagination state
@@ -24,6 +26,13 @@ export function ArticleProvider({ children }) {
     hasPrevPage: false,
   });
 
+  // Advanced filters
+  const [featuredOnly, setFeaturedOnly] = useState(false);
+  const [authorFilter, setAuthorFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
   // 🧠 Fetch all articles from the backend with filters
   const fetchArticles = async () => {
     setLoading(true);
@@ -31,11 +40,20 @@ export function ArticleProvider({ children }) {
       // Build query params
       const params = new URLSearchParams();
       if (searchQuery) params.append("search", searchQuery);
-      if (selectedTags.length > 0) params.append("tags", selectedTags.join(","));
+      if (selectedTags.length > 0)
+        params.append("tags", selectedTags.join(","));
       if (sortBy) params.append("sortBy", sortBy);
       if (sortOrder) params.append("order", sortOrder);
       params.append("page", currentPage.toString());
       params.append("limit", pageSize.toString());
+
+      // Advanced filters
+      if (featuredOnly) params.append("featured", "true");
+      if (authorFilter) params.append("author", authorFilter);
+      if (startDate) params.append("startDate", startDate);
+      if (endDate) params.append("endDate", endDate);
+      if (statusFilter && statusFilter !== "all")
+        params.append("status", statusFilter);
 
       const res = await api.get(`/articles?${params.toString()}`);
 
@@ -57,12 +75,24 @@ export function ArticleProvider({ children }) {
 
   useEffect(() => {
     fetchArticles();
-  }, [searchQuery, selectedTags, sortBy, sortOrder, currentPage, pageSize]);
+  }, [
+    searchQuery,
+    selectedTags,
+    sortBy,
+    sortOrder,
+    currentPage,
+    pageSize,
+    featuredOnly,
+    authorFilter,
+    startDate,
+    endDate,
+    statusFilter,
+  ]);
 
   // ➕ Add a new article
   const addArticle = async (newArticle) => {
     try {
-      const res = await api.post("/articles", newArticle);
+      const res = await api.post("/articles/", newArticle);
       setArticles([...articles, res.data]);
     } catch (error) {
       console.error("Failed to add article:", error);
@@ -72,7 +102,7 @@ export function ArticleProvider({ children }) {
   // 🔄 Update existing article
   const updateArticle = async (id, updatedData) => {
     try {
-      const res = await api.put(`/articles/${id}`, updatedData);
+      const res = await api.put(`/articles/edit/${id}`, updatedData);
       setArticles(
         articles.map((article) => (article._id === id ? res.data : article)),
       );
@@ -84,7 +114,7 @@ export function ArticleProvider({ children }) {
   // ❌ Delete article
   const deleteArticle = async (id) => {
     try {
-      await api.delete(`/articles/${id}`);
+      await api.delete(`/articles/delete/${id}`);
       setArticles(articles.filter((article) => article._id !== id));
     } catch (error) {
       console.error("Failed to delete article:", error);
@@ -96,7 +126,15 @@ export function ArticleProvider({ children }) {
     articles.find((article) => article.slug === slug);
 
   // 🔍 Get single article by id
-  const getArticleById = (id) => articles.find((article) => article._id === id);
+  const getArticleById = async (id) => {
+    try {
+      const res = await api.get(`/articles/by-id/${id}`);
+      const data = res.data.data || res.data;
+      return data;
+    } catch (error) {
+      console.error("Article fetch failed", error);
+    }
+  };
 
   // 🏷 Get articles by tag
   const getArticlesByTag = (tag) =>
@@ -133,11 +171,16 @@ export function ArticleProvider({ children }) {
     );
   };
 
-  // 🧾 All unique tags
-  const getAllTags = () => {
-    const tagSet = new Set();
-    articles.forEach((a) => a.tags.forEach((tag) => tagSet.add(tag)));
-    return Array.from(tagSet).sort();
+  // 🧹 Clear all filters
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setSelectedTags([]);
+    setFeaturedOnly(false);
+    setAuthorFilter("");
+    setStartDate("");
+    setEndDate("");
+    setStatusFilter("all");
+    setCurrentPage(1);
   };
 
   // =============== WORKFLOW FUNCTIONS ===============
@@ -164,8 +207,10 @@ export function ArticleProvider({ children }) {
       // Update local state
       setArticles(
         articles.map((article) =>
-          article._id === id ? { ...article, status: "pending", submittedAt: new Date() } : article
-        )
+          article._id === id
+            ? { ...article, status: "pending", submittedAt: new Date() }
+            : article,
+        ),
       );
       return res.data;
     } catch (error) {
@@ -193,8 +238,8 @@ export function ArticleProvider({ children }) {
       // Update local state
       setArticles(
         articles.map((article) =>
-          article._id === id ? res.data.article || res.data : article
-        )
+          article._id === id ? res.data.article || res.data : article,
+        ),
       );
       return res.data;
     } catch (error) {
@@ -210,8 +255,8 @@ export function ArticleProvider({ children }) {
       // Update local state
       setArticles(
         articles.map((article) =>
-          article._id === id ? res.data.article || res.data : article
-        )
+          article._id === id ? res.data.article || res.data : article,
+        ),
       );
       return res.data;
     } catch (error) {
@@ -220,9 +265,41 @@ export function ArticleProvider({ children }) {
     }
   };
 
+  // Fetch all slugs
+  useEffect(() => {
+    const getSlugs = async () => {
+      try {
+        const res = await api.get("/articles/slugs");
+        const slugs = res.data.map((slugObject) => slugObject.slug);
+        setSlugs(slugs);
+      } catch (error) {
+        console.log("Failed to fetch slugs", error);
+      }
+    };
+    getSlugs();
+  }, []);
+
+  // 🧾 All unique tags
+  useEffect(() => {
+    const getAllTags = async () => {
+      try {
+        const res = await api.get("/articles/tags");
+        const tags = res.data;
+        setAllTags(tags);
+      } catch (error) {
+        console.log("Failed to fetch tags", error);
+      }
+    };
+    getAllTags();
+  }, []);
+
   const value = {
     articles,
     loading,
+    slugs,
+    setSlugs,
+    allTags,
+    setAllTags,
     addArticle,
     updateArticle,
     deleteArticle,
@@ -232,7 +309,6 @@ export function ArticleProvider({ children }) {
     getFeaturedArticles,
     getRelatedArticles,
     searchArticles,
-    getAllTags,
     // Workflow functions
     getMyArticles,
     submitArticleForReview,
@@ -254,6 +330,18 @@ export function ArticleProvider({ children }) {
     setPageSize,
     pagination,
     fetchArticles,
+    // Advanced filters
+    featuredOnly,
+    setFeaturedOnly,
+    authorFilter,
+    setAuthorFilter,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    statusFilter,
+    setStatusFilter,
+    clearAllFilters,
   };
 
   return (

@@ -6,34 +6,43 @@ import { z } from "zod";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../components/ui/card";
-import { Field, FieldLabel, FieldError, FieldDescription } from "../components/ui/field";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "../components/ui/card";
+import {
+  Field,
+  FieldLabel,
+  FieldError,
+  FieldDescription,
+} from "../components/ui/field";
 import { Loader2 } from "lucide-react";
 
 // Validation schema
-const registerSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must not exceed 50 characters"),
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Invalid email format"),
-  password: z
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .max(100, "Password must not exceed 100 characters"),
-  confirmPassword: z
-    .string()
-    .min(1, "Please confirm your password"),
-  role: z.enum(["user", "author"], {
-    required_error: "Please select a role",
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const registerSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .max(50, "Name must not exceed 50 characters"),
+    email: z.email("Invalid email format").min(1, "Email is required"),
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters")
+      .max(100, "Password must not exceed 100 characters"),
+    confirmPassword: z.string().min(6, "Please confirm your password"),
+    role: z.enum(["user", "author"], {
+      required_error: "Please select a role",
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export default function Register() {
   const navigate = useNavigate();
@@ -68,7 +77,8 @@ export default function Register() {
     if (/[^a-zA-Z0-9]/.test(pwd)) strength++;
 
     if (strength <= 2) return { strength, text: "Weak", color: "text-red-500" };
-    if (strength <= 3) return { strength, text: "Medium", color: "text-yellow-500" };
+    if (strength <= 3)
+      return { strength, text: "Medium", color: "text-yellow-500" };
     return { strength, text: "Strong", color: "text-green-500" };
   };
 
@@ -84,14 +94,14 @@ export default function Register() {
         data.name,
         data.email,
         data.password,
-        data.role
+        data.role,
       );
 
       setSuccessMessage(result.message);
 
       // Redirect to login after 2 seconds
       setTimeout(() => {
-        navigate("/login");
+        navigate("/sign-in");
       }, 2000);
     } catch (error) {
       setServerError(error.message);
@@ -106,7 +116,7 @@ export default function Register() {
         <CardHeader>
           <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
           <CardDescription>
-            Register to start creating and sharing articles
+            Sign Up to start creating and sharing articles
           </CardDescription>
         </CardHeader>
 
@@ -137,9 +147,7 @@ export default function Register() {
                 disabled={isLoading}
                 className={errors.name ? "border-red-500" : ""}
               />
-              {errors.name && (
-                <FieldError>{errors.name.message}</FieldError>
-              )}
+              {errors.name && <FieldError>{errors.name.message}</FieldError>}
             </Field>
 
             {/* Email Field */}
@@ -153,9 +161,7 @@ export default function Register() {
                 disabled={isLoading}
                 className={errors.email ? "border-red-500" : ""}
               />
-              {errors.email && (
-                <FieldError>{errors.email.message}</FieldError>
-              )}
+              {errors.email && <FieldError>{errors.email.message}</FieldError>}
             </Field>
 
             {/* Password Field */}
@@ -171,7 +177,10 @@ export default function Register() {
               />
               {password && !errors.password && (
                 <FieldDescription>
-                  Password strength: <span className={passwordStrength.color}>{passwordStrength.text}</span>
+                  Password strength:{" "}
+                  <span className={passwordStrength.color}>
+                    {passwordStrength.text}
+                  </span>
                 </FieldDescription>
               )}
               {errors.password && (
@@ -181,7 +190,9 @@ export default function Register() {
 
             {/* Confirm Password Field */}
             <Field>
-              <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
+              <FieldLabel htmlFor="confirmPassword">
+                Confirm Password
+              </FieldLabel>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -209,12 +220,11 @@ export default function Register() {
                 <option value="user">User (Read articles)</option>
                 <option value="author">Author (Write articles)</option>
               </select>
-              <FieldDescription>
-                Users can upgrade to authors later. Authors can create and publish articles.
+              <FieldDescription className="mt-2">
+                Users can upgrade to authors later. Authors can create and
+                publish articles.
               </FieldDescription>
-              {errors.role && (
-                <FieldError>{errors.role.message}</FieldError>
-              )}
+              {errors.role && <FieldError>{errors.role.message}</FieldError>}
             </Field>
           </CardContent>
 
@@ -222,7 +232,7 @@ export default function Register() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full"
+              className="w-full mt-4"
               disabled={isLoading || !!successMessage}
             >
               {isLoading ? (
@@ -231,20 +241,20 @@ export default function Register() {
                   Creating account...
                 </>
               ) : successMessage ? (
-                "Redirecting to login..."
+                "Redirecting to Sign In..."
               ) : (
                 "Create Account"
               )}
             </Button>
 
             {/* Login Link */}
-            <p className="text-sm text-center text-muted-foreground">
+            <p className="text-sm text-center text-muted-foreground mt-2">
               Already have an account?{" "}
               <Link
-                to="/login"
+                to="/sign-in"
                 className="text-primary hover:underline font-medium"
               >
-                Login here
+                Sign In here
               </Link>
             </p>
           </CardFooter>

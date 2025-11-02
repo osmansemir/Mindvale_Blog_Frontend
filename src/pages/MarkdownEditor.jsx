@@ -1,9 +1,23 @@
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  MultiSelector,
+  MultiSelectorContent,
+  MultiSelectorInput,
+  MultiSelectorItem,
+  MultiSelectorList,
+  MultiSelectorTrigger,
+} from "@/components/ui/multi-select";
+import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
+import { ButtonGroup } from "../components/ui/button-group";
 import { Textarea } from "../components/ui/textarea";
 import MarkdownDisplay from "../components/article/MarkdownDisplay";
 import { useState, useEffect } from "react";
-import ArticleForm from "./ArticleForm";
 import { useArticles } from "../hooks/useArticles";
 import {
   ResizableHandle,
@@ -13,77 +27,262 @@ import {
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Input } from "../components/ui/input";
 import { ModeToggle } from "../components/ModeToggle";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldError,
+} from "@/components/ui/field";
 import { Item, ItemTitle } from "../components/ui/item";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { Earth } from "lucide-react";
+
+// Define validation schema (slug, author, and featured are auto-generated)
+const articleSchema = z.object({
+  title: z
+    .string()
+    .min(3, "Title must be at least 3 characters")
+    .max(100, "Title must be less than 100 characters"),
+  description: z
+    .string()
+    .min(10, "Description must be at least 10 characters")
+    .max(500, "Description must be less than 500 characters"),
+  tags: z.array(z.string()).min(1, "At least one tag is required"),
+  markdown: z.string().min(20, "Markdown must be at least 20 characters"),
+});
 
 function MarkdownEditor() {
-  const [article, setArticle] = useState({
-    title: "",
-    slug: "",
-    markdown: "",
-    author: "",
-    tags: "",
-    description: "",
-  });
-
-  const { getArticleById, addArticle, updateArticle } = useArticles();
-  const navigate = useNavigate();
+  const { getArticleById, addArticle, updateArticle, slugs, setSlugs } =
+    useArticles();
   const { id } = useParams();
+  const [inEditingMode, setInEditingMode] = useState(false);
+  const [initialSlug, setInitialSlug] = useState("");
 
   // Load article if editing
   useEffect(() => {
-    if (id) {
-      const existingArticle = getArticleById(id);
-      if (existingArticle) {
-        setArticle(existingArticle);
-      } else {
-        navigate("/404", { replace: true });
+    if (!id) return;
+    const fetchArticle = async () => {
+      try {
+        const article = await getArticleById(id);
+        if (article) reset(article);
+        setInEditingMode(true);
+        setInitialSlug(article.slug);
+      } catch (err) {
+        console.error("Error loading article:", err);
       }
-    }
+    };
+    fetchArticle();
   }, [id]); //eslint-disable-line
 
-  // Handle markdown changes in real-time
-  const handleMarkdownChange = (markdown) => {
-    setArticle((prev) => ({
-      ...prev,
-      markdown,
-    }));
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    watch,
+    control,
+    reset,
+  } = useForm({
+    resolver: zodResolver(articleSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      tags: [],
+      markdown: "",
+      slug: "",
+    },
+  });
+
+  const navigate = useNavigate();
+
+  const generateSlug = (title) => {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
   };
 
-  // if no article id, we are creating a new article
-  const inEditingMode = !!article?._id;
+  const titleValue = watch("title");
+  const markdownValue = watch("markdown");
 
-  const onSave = (newData) => {
-    if (inEditingMode) {
-      updateArticle(article._id, newData);
-      console.log("Edits saved:", newData);
-    } else {
-      addArticle(newData);
-      console.log("Article saved:", newData);
+  const onSubmit = async (data) => {
+    const newSlug = generateSlug(titleValue);
+    const newData = { ...data, slug: newSlug };
+
+    try {
+      // Validate slug
+      const slugExists = slugs.includes(initialSlug);
+
+      if (slugExists && newSlug !== initialSlug) {
+        toast.error("Slug already exists. Please choose a different title.");
+        return;
+      }
+
+      // Save article
+      if (inEditingMode) {
+        await updateArticle(id, newData);
+      } else {
+        await addArticle(newData);
+      }
+
+      // Update slugs array
+      if (inEditingMode && newSlug !== initialSlug) {
+        setSlugs(
+          slugs
+            .filter((s) => (typeof s === "string" ? s : s.slug) !== initialSlug)
+            .concat(newSlug),
+        );
+      } else if (!inEditingMode) {
+        setSlugs([...slugs, newSlug]);
+      }
+
+      // Uncomment when ready: navigate(-1);
+    } catch (error) {
+      console.error("Failed to save article:", error);
+      toast.error("Failed to save article. Please try again.");
     }
-    navigate(-1);
   };
 
-  const wordCount = article.markdown
-    .trim()
-    .split(/\s+/)
-    .filter((word) => word.length > 0).length;
+  const wordCount = (markdown) => {
+    if (!markdown) return 0;
+    return markdown
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
+  };
 
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <div className="flex font-bold items-center border-b px-6 h-[100px]">
-        <div className="w-1/2 flex-col">
-          <h1 className="text-2xl mb-2">{article.title || "Untitled"}</h1>
+      <div className="flex w-full gap-4  justify-between font-bold items-center border-b px-6 h-14">
+        <Link to="/">
+          <Earth />
+        </Link>
+        {/* Title Field */}
+        <Field className=" grow">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Input
+                className="w-1/3 bg-background dark:bg-background text-foreground placeholder:text-muted-foreground placeholder:font-bold placeholder:text-lg border-0 outline-none shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:border-0 focus-visible:bg-background dark:focus-visible:bg-background focus-visible:shadow-none px-3 py-2 transition-none"
+                id="title"
+                placeholder="Title"
+                {...register("title")}
+                aria-invalid={errors.title ? "true" : "false"}
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              {errors.title ? errors.title.message : "Title"}
+            </TooltipContent>
+          </Tooltip>
+        </Field>
+        <ModeToggle className="self-end" />
+      </div>
+      <div className="flex  w-screen  justify-between font-bold items-center border-b px-6 md:h-16 py-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="w-full gap-3 flex px-3 flex-col md:flex-row"
+        >
+          {/* Description Field */}
+          <Field>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Input
+                  className="w-full bg-background text-foreground placeholder:text-muted-foreground border-0 outline-none shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:border-0 focus-visible:bg-background focus-visible:shadow-none px-3 py-2 transition-none"
+                  id="description"
+                  placeholder="Description"
+                  {...register("description")}
+                  aria-invalid={errors.description ? "true" : "false"}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                {errors.description
+                  ? errors.description.message
+                  : "Description"}
+              </TooltipContent>
+            </Tooltip>
+          </Field>
 
-          <ArticleForm article={article} onSave={onSave} />
-          <Button variant="outline" onClick={() => navigate(-1)}>
-            Discard
-          </Button>
-        </div>
+          {/* Tags Field */}
+          <Field className="grow-3">
+            {/* <Tooltip> */}
+            {/*   <TooltipTrigger asChild> */}
+            {/*     <Input */}
+            {/*       className="w-full bg-background text-foreground placeholder:text-muted-foreground border-0 outline-none shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:border-0 focus-visible:bg-background focus-visible:shadow-none px-3 py-2 transition-none" */}
+            {/*       id="tags" */}
+            {/*       placeholder="# Tags" */}
+            {/*       {...register("tags")} */}
+            {/*       aria-invalid={errors.tags ? "true" : "false"} */}
+            {/*     /> */}
+            {/*   </TooltipTrigger> */}
+            {/*   <TooltipContent> */}
+            {/*     {errors.tags ? errors.tags.message : "#Tags"} */}
+            {/*   </TooltipContent> */}
+            {/* </Tooltip> */}
+            <Controller
+              control={control}
+              name="tags"
+              render={({ field }) => (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <MultiSelector
+                      values={
+                        field.value?.map((val) => {
+                          const option = tagOptions.find(
+                            (opt) => opt.value === val,
+                          );
+                          return option || { value: val, label: val };
+                        }) || []
+                      }
+                      onValuesChange={(selected) => {
+                        field.onChange(selected.map((item) => item.value));
+                      }}
+                      loop
+                      className="max-w-xs"
+                    >
+                      <MultiSelectorTrigger>
+                        <MultiSelectorInput placeholder="Select tags" />
+                      </MultiSelectorTrigger>
+                      <MultiSelectorContent>
+                        <MultiSelectorList>
+                          {tagOptions.map((tag) => (
+                            <MultiSelectorItem
+                              key={tag.value}
+                              value={tag.value}
+                              label={tag.label}
+                            >
+                              {tag.label}
+                            </MultiSelectorItem>
+                          ))}
+                        </MultiSelectorList>
+                      </MultiSelectorContent>
+                    </MultiSelector>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {errors.tags ? errors.tags.message : "Tags"}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            />
+          </Field>
 
-        <div className="mx-3 grow"></div>
-        <ModeToggle />
+          <ButtonGroup className="max-md:w-50 max-md:">
+            <Button
+              variant="destructive"
+              //TODO: Discard dialog
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(-1);
+              }}
+            >
+              Discard
+            </Button>
+            <Button type="submit">{isSubmitting ? "Saving..." : "Save"}</Button>
+          </ButtonGroup>
+        </form>
       </div>
 
       {/* Editor and Preview */}
@@ -92,14 +291,13 @@ function MarkdownEditor() {
           <ResizablePanel>
             {/* Markdown Editor */}
             <div className="h-full">
-              <Item className="h-12 text-primary-foreground bg-sidebar-accent rounded-none">
+              <Item className="shadow-sm px-4 py-2 items-center text-secondary-foreground bg-secondary rounded-none">
                 <ItemTitle>Markdown</ItemTitle>
               </Item>
               <Textarea
+                {...register("markdown")}
                 className="h-full w-full pb-16 font-mono rounded-none resize-none focus-visible:ring-0 border-0 focus-visible:border-0"
                 placeholder="Type your markdown here..."
-                value={article.markdown}
-                onChange={(e) => handleMarkdownChange(e.target.value)}
               />
             </div>
           </ResizablePanel>
@@ -108,11 +306,11 @@ function MarkdownEditor() {
 
           <ResizablePanel>
             {/* Preview */}
-            <Item className="h-12 text-primary-foreground bg-sidebar-accent rounded-none">
+            <Item className="shadow-sm px-4 py-2 items-center text-secondary-foreground bg-secondary rounded-none">
               <ItemTitle>Preview</ItemTitle>
             </Item>
             <div className="h-full p-3 overflow-y-auto pb-16">
-              <MarkdownDisplay markdown={article.markdown} />
+              <MarkdownDisplay markdown={markdownValue} />
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
@@ -120,7 +318,7 @@ function MarkdownEditor() {
 
       {/* Footer - Word Count */}
       <div className="h-6 bg-foreground text-background text-sm flex items-center px-3">
-        Words: {wordCount}
+        Words: {wordCount(markdownValue)}
       </div>
     </div>
   );

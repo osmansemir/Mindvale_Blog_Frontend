@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 /**
@@ -14,7 +14,7 @@ import { useAuth } from "../../hooks/useAuth";
  *   <Login />
  * </PublicRoute>
  */
-export default function PublicRoute({ children, redirectTo = "/" }) {
+export default function PublicRoute({ redirectTo = "/" }) {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
@@ -38,5 +38,5 @@ export default function PublicRoute({ children, redirectTo = "/" }) {
   }
 
   // User is not authenticated, show the auth page
-  return children;
+  return <Outlet />;
 }

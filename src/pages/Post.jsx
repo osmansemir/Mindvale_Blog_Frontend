@@ -1,5 +1,8 @@
 import { useEffect } from "react";
 import MarkdownDisplay from "../components/article/MarkdownDisplay";
+import ArticleMetadata from "../components/article/ArticleMetadata";
+import AuthorCard from "../components/article/AuthorCard";
+import RelatedArticles from "../components/article/RelatedArticles";
 import { useArticles } from "../hooks/useArticles";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -14,14 +17,23 @@ function Post() {
   });
 
   if (!article) return <div>Article not found!</div>;
+
   return (
-    <>
-      <main className=" flex justify-center pt-8 pb-6 lg:pt-16 lg:pb-24 antialiased overflow-y-auto">
-        <div className=" px-4  md:max-w-2xl w-full">
-          <MarkdownDisplay markdown={article.markdown} />
-        </div>
-      </main>
-    </>
+    <main className="flex justify-center pt-8 pb-6 lg:pt-16 lg:pb-24 antialiased overflow-y-auto">
+      <div className="px-4 md:max-w-2xl w-full">
+        {/* Article Content */}
+        <MarkdownDisplay markdown={article.markdown} />
+
+        {/* Article Metadata */}
+        <ArticleMetadata article={article} />
+
+        {/* Author Card */}
+        {article.author && <AuthorCard author={article.author} />}
+
+        {/* Related Articles */}
+        <RelatedArticles currentArticle={article} limit={4} />
+      </div>
+    </main>
   );
 }
 

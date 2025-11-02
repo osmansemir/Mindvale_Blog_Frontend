@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useArticles } from "../hooks/useArticles";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import StatusBadge from "../components/article/StatusBadge";
 import SubmitReviewButton from "../components/article/SubmitReviewButton";
 import { Pen, Trash2, FileText, AlertCircle } from "lucide-react";
@@ -73,7 +79,7 @@ export default function MyArticles() {
           </p>
         </div>
         <Button asChild>
-          <Link to="/admin/articles/new">
+          <Link to="/articles/new">
             <FileText className="mr-2 h-4 w-4" />
             New Article
           </Link>
@@ -109,7 +115,7 @@ export default function MyArticles() {
                 : `You don't have any ${filter} articles.`}
             </p>
             <Button asChild>
-              <Link to="/admin/articles/new">Create Your First Article</Link>
+              <Link to="/articles/new">Create Your First Article</Link>
             </Button>
           </CardContent>
         </Card>
@@ -142,13 +148,20 @@ export default function MyArticles() {
                 <div className="space-y-3">
                   {/* Metadata */}
                   <div className="text-sm text-muted-foreground space-y-1">
-                    <p>Created: {new Date(article.createdAt).toLocaleDateString()}</p>
+                    <p>
+                      Created:{" "}
+                      {new Date(article.createdAt).toLocaleDateString()}
+                    </p>
                     {article.submittedAt && (
-                      <p>Submitted: {new Date(article.submittedAt).toLocaleDateString()}</p>
+                      <p>
+                        Submitted:{" "}
+                        {new Date(article.submittedAt).toLocaleDateString()}
+                      </p>
                     )}
                     {article.reviewedAt && (
                       <p>
-                        Reviewed: {new Date(article.reviewedAt).toLocaleDateString()}
+                        Reviewed:{" "}
+                        {new Date(article.reviewedAt).toLocaleDateString()}
                         {article.reviewedBy && ` by ${article.reviewedBy.name}`}
                       </p>
                     )}
@@ -174,9 +187,10 @@ export default function MyArticles() {
                   {/* Actions */}
                   <div className="flex gap-2 pt-2">
                     {/* View/Edit Button */}
-                    {article.status === "draft" || article.status === "rejected" ? (
+                    {article.status === "draft" ||
+                    article.status === "rejected" ? (
                       <Button asChild variant="outline" size="sm">
-                        <Link to={`/admin/articles/edit/${article._id}`}>
+                        <Link to={`/articles/edit/${article._id}`}>
                           <Pen className="mr-2 h-4 w-4" />
                           Edit
                         </Link>
@@ -191,7 +205,8 @@ export default function MyArticles() {
                     )}
 
                     {/* Submit for Review Button */}
-                    {(article.status === "draft" || article.status === "rejected") && (
+                    {(article.status === "draft" ||
+                      article.status === "rejected") && (
                       <SubmitReviewButton
                         articleId={article._id}
                         status={article.status}

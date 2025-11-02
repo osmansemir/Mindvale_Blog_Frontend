@@ -1,8 +1,11 @@
 import axios from "axios";
 import { toast } from "sonner";
 
+// const API_URL = "http://192.168.0.169:5000/api";
+const API_URL = "http://localhost:5000/api";
+
 const api = axios.create({
-  baseURL: "http://localhost:5000/api", //  backend URL
+  baseURL: API_URL, //  backend URL
 });
 
 // Request interceptor - Attach JWT token to requests
@@ -38,7 +41,11 @@ api.interceptors.response.use(
             console.error("Validation error:", data);
           }
           // Show first validation error if available
-          if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+          if (
+            data.errors &&
+            Array.isArray(data.errors) &&
+            data.errors.length > 0
+          ) {
             toast.error(data.errors[0].message || "Validation error");
           } else if (data.message) {
             toast.error(data.message);
@@ -51,16 +58,19 @@ api.interceptors.response.use(
             console.error("Unauthorized: Invalid or expired token");
           }
 
-          toast.error("Session expired. Please login again.");
+          toast.error("Session expired. Please Sign In again.");
 
           // Clear token and redirect to login
           localStorage.removeItem("token");
           delete api.defaults.headers.common["Authorization"];
 
           // Redirect to login page if not already there
-          if (window.location.pathname !== "/login" && window.location.pathname !== "/register") {
+          if (
+            window.location.pathname !== "/sign-in" &&
+            window.location.pathname !== "/sign-up"
+          ) {
             setTimeout(() => {
-              window.location.href = "/login";
+              window.location.href = "/sign-in";
             }, 1000);
           }
           break;
@@ -70,7 +80,9 @@ api.interceptors.response.use(
           if (import.meta.env.DEV) {
             console.error("Forbidden: Insufficient permissions");
           }
-          toast.error("Access denied. You don't have permission to perform this action.");
+          toast.error(
+            "Access denied. You don't have permission to perform this action.",
+          );
           break;
 
         case 404:
@@ -101,7 +113,10 @@ api.interceptors.response.use(
         case 500:
           // Internal server error
           if (import.meta.env.DEV) {
-            console.error("Server error:", data.message || "Internal server error");
+            console.error(
+              "Server error:",
+              data.message || "Internal server error",
+            );
           }
           toast.error("Server error. Please try again later.");
           break;
