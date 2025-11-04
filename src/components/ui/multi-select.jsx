@@ -267,7 +267,7 @@ const MultiSelectorInput = forwardRef(({ className, ...props }, ref) => {
       onFocus={() => setOpen(true)}
       onClick={() => setActiveIndex(-1)}
       className={cn(
-        "ml-1 bg-transparent outline-none placeholder:text-muted-foreground flex-1",
+        "ml-1 bg-transparent outline-none placeholder:text-muted-foreground flex-1 overflow-x",
         className,
         activeIndex !== -1 && "caret-transparent",
       )}

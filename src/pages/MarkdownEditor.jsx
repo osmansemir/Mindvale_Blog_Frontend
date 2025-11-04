@@ -39,6 +39,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Earth } from "lucide-react";
+import { useMemo } from "react";
 
 // Define validation schema (slug, author, and featured are auto-generated)
 const articleSchema = z.object({
@@ -55,11 +56,24 @@ const articleSchema = z.object({
 });
 
 function MarkdownEditor() {
-  const { getArticleById, addArticle, updateArticle, slugs, setSlugs } =
-    useArticles();
+  const {
+    getArticleById,
+    addArticle,
+    updateArticle,
+    slugs,
+    setSlugs,
+    allTags,
+  } = useArticles();
   const { id } = useParams();
   const [inEditingMode, setInEditingMode] = useState(false);
   const [initialSlug, setInitialSlug] = useState("");
+
+  const tagOptions = useMemo(() => {
+    return allTags.map((tag) => ({
+      value: tag,
+      label: tag.charAt(0).toUpperCase() + tag.slice(1), // Capitalize first letter
+    }));
+  }, [allTags]);
 
   // Load article if editing
   useEffect(() => {
@@ -181,7 +195,7 @@ function MarkdownEditor() {
         </Field>
         <ModeToggle className="self-end" />
       </div>
-      <div className="flex  w-screen  justify-between font-bold items-center border-b px-6 md:h-16 py-4">
+      <div className="flex  w-screen  justify-between font-bold items-center border-b px-6 min-h-16 py-4">
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="w-full gap-3 flex px-3 flex-col md:flex-row"
@@ -191,7 +205,7 @@ function MarkdownEditor() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Input
-                  className="w-full bg-background text-foreground placeholder:text-muted-foreground border-0 outline-none shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:border-0 focus-visible:bg-background focus-visible:shadow-none px-3 py-2 transition-none"
+                  className="w-full bg-background text-foreground placeholder:text-muted-foreground px-3 py-2 h-9/10"
                   id="description"
                   placeholder="Description"
                   {...register("description")}
@@ -241,10 +255,10 @@ function MarkdownEditor() {
                         field.onChange(selected.map((item) => item.value));
                       }}
                       loop
-                      className="max-w-xs"
+                      className="max-w-md "
                     >
                       <MultiSelectorTrigger>
-                        <MultiSelectorInput placeholder="Select tags" />
+                        <MultiSelectorInput placeholder="#Tags" />
                       </MultiSelectorTrigger>
                       <MultiSelectorContent>
                         <MultiSelectorList>
@@ -252,9 +266,9 @@ function MarkdownEditor() {
                             <MultiSelectorItem
                               key={tag.value}
                               value={tag.value}
-                              label={tag.label}
+                              label={tag.value}
                             >
-                              {tag.label}
+                              {tag.value}
                             </MultiSelectorItem>
                           ))}
                         </MultiSelectorList>

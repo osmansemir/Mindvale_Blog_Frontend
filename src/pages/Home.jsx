@@ -13,10 +13,10 @@ function Home() {
 
   return (
     <>
-      <main className="w-full min-h-screen mx-auto grid grid-cols-3 p-10">
-        <div className="col-span-2">
+      <main className="w-full min-h-screen mx-auto grid grid-cols-4 p-10">
+        <div className="col-span-3">
           {/* Featured Articles Section */}
-          <FeaturedArticles />
+          {/* <FeaturedArticles /> */}
 
           {/* Search,Sort and Filter Bar */}
           <div className="flex gap-2 mb-6">

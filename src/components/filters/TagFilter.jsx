@@ -7,8 +7,7 @@ import { Badge } from "../ui/badge";
  * TagFilter - Filter articles by tags
  */
 export default function TagFilter() {
-  const { selectedTags, setSelectedTags, getAllTags } = useArticles();
-  const allTags = getAllTags();
+  const { selectedTags, setSelectedTags, allTags } = useArticles();
 
   const toggleTag = (tag) => {
     if (selectedTags.includes(tag)) {
@@ -57,7 +56,8 @@ export default function TagFilter() {
       </div>
       {selectedTags.length > 0 && (
         <p className="text-xs text-muted-foreground">
-          {selectedTags.length} tag{selectedTags.length !== 1 ? "s" : ""} selected
+          {selectedTags.length} tag{selectedTags.length !== 1 ? "s" : ""}{" "}
+          selected
         </p>
       )}
     </div>
