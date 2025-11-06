@@ -7,6 +7,7 @@ const API_URL = "https://mindvale-api.onrender.com/api";
 const api = axios.create({
   baseURL: API_URL, //  backend URL
 });
+api.defaults.withCredentials = true;
 
 // Request interceptor - Attach JWT token to requests
 api.interceptors.request.use(

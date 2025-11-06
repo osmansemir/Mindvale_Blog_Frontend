@@ -62,9 +62,7 @@ function App() {
                     </Layout>
                   }
                 />
-
                 <Route path="/articles/new" element={<MarkdownEditor />} />
-
                 <Route path="/articles/edit/:id" element={<MarkdownEditor />} />
               </Route>
 
