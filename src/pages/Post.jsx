@@ -19,8 +19,8 @@ function Post() {
   if (!article) return <div>Article not found!</div>;
 
   return (
-    <main className="flex justify-center pt-8 pb-6 lg:pt-16 lg:pb-24 antialiased overflow-y-auto">
-      <div className="px-4 md:max-w-2xl w-full">
+    <main className=" pt-8 pb-6 lg:pt-16 lg:pb-24 p-5 sm:p-16 antialiased overflow-y-auto">
+      <div className="mx-auto sm:max-w-2xl w-full">
         {/* Article Content */}
         <MarkdownDisplay markdown={article.markdown} />
 

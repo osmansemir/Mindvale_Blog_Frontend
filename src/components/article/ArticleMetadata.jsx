@@ -1,5 +1,6 @@
 import { Calendar, Clock, User, CheckCircle, XCircle } from "lucide-react";
-import { Badge } from "../ui/badge";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 
 /**
  * ArticleMetadata - Display article metadata (dates, author, review info)
@@ -8,6 +9,7 @@ import { Badge } from "../ui/badge";
  * @param {Object} props.article - Article object
  */
 export default function ArticleMetadata({ article }) {
+  const { user } = useAuth();
   if (!article) return null;
 
   const formatDate = (dateString) => {
@@ -54,7 +56,7 @@ export default function ArticleMetadata({ article }) {
         )}
 
         {/* Submission Date (for pending articles) */}
-        {article.submittedAt && (
+        {user?.role === "admin" && article.submittedAt && (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Calendar className="h-4 w-4" />
             <div>
@@ -65,7 +67,7 @@ export default function ArticleMetadata({ article }) {
         )}
 
         {/* Review Info (for approved/rejected articles) */}
-        {article.reviewedAt && (
+        {user?.role === "admin" && article.reviewedAt && (
           <div className="flex items-center gap-2 text-muted-foreground">
             {article.status === "approved" ? (
               <CheckCircle className="h-4 w-4 text-green-600" />

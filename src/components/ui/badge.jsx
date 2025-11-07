@@ -7,6 +7,8 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
+          "border-transparent bg-primary/50 text-primary-foreground shadow hover:bg-primary/40",
+        primary:
           "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
@@ -18,7 +20,7 @@ const badgeVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 function Badge({ className, variant, ...props }) {

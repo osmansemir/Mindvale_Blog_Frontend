@@ -1,6 +1,7 @@
 import { User, Mail, Shield } from "lucide-react";
-import { Card, CardContent } from "../ui/card";
-import { Badge } from "../ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 
 /**
  * AuthorCard - Display author information
@@ -9,6 +10,7 @@ import { Badge } from "../ui/badge";
  * @param {Object} props.author - Author object with name, email, role
  */
 export default function AuthorCard({ author }) {
+  const { user } = useAuth();
   if (!author) return null;
 
   const getRoleBadgeVariant = (role) => {
@@ -16,10 +18,9 @@ export default function AuthorCard({ author }) {
       case "admin":
         return "destructive";
       case "author":
-        return "default";
-      case "user":
+        return "primary";
       default:
-        return "secondary";
+        return "default";
     }
   };
 
@@ -35,8 +36,8 @@ export default function AuthorCard({ author }) {
 
   return (
     <Card className="mt-8">
-      <CardContent className="pt-6">
-        <div className="flex items-start gap-4">
+      <CardContent className="">
+        <div className="flex items-start gap-2">
           {/* Avatar */}
           <div className="flex-shrink-0">
             <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -47,25 +48,25 @@ export default function AuthorCard({ author }) {
           </div>
 
           {/* Author Info */}
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-lg font-semibold">{author.name}</h3>
-              <Badge variant={getRoleBadgeVariant(author.role)}>
-                <Shield className="h-3 w-3 mr-1" />
-                {author.role}
-              </Badge>
+              {user?.role === "admin" && (
+                <Badge variant={getRoleBadgeVariant(author.role)}>
+                  <Shield className="h-3 w-3 mr-1" />
+                  {author.role}
+                </Badge>
+              )}
             </div>
 
-            {author.email && (
+            {user?.role === "admin" && author.email && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4" />
                 {author.email}
               </div>
             )}
 
-            <p className="text-sm text-muted-foreground">
-              Article author
-            </p>
+            <p className="text-sm text-muted-foreground">Article author</p>
           </div>
         </div>
       </CardContent>
