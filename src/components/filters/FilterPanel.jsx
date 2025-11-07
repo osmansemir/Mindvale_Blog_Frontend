@@ -1,18 +1,25 @@
 import { useState, useEffect, useRef } from "react";
 import { Filter, X, ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useArticles } from "@/hooks/useArticles";
+import { useAuth } from "@/hooks/useAuth";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
-  SelectItem,
   SelectTrigger,
+  SelectItem,
   SelectValue,
-} from "../ui/select";
-import { useArticles } from "../../hooks/useArticles";
-import { useAuth } from "../../hooks/useAuth";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { DatePicker } from "../ui/DatePicker";
 
 /**
  * FilterPanel - Advanced filtering options for articles
@@ -37,22 +44,6 @@ export default function FilterPanel() {
   const [isExpanded, setIsExpanded] = useState(false);
   const panelRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (panelRef.current && !panelRef.current.contains(event.target)) {
-        setIsExpanded(false);
-      }
-    };
-
-    if (isExpanded) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isExpanded]);
-
   const hasActiveFilters =
     featuredOnly ||
     authorFilter ||
@@ -65,48 +56,27 @@ export default function FilterPanel() {
   };
 
   return (
-    <div className="border shadow-xs rounded-lg px-4 relative">
-      {/* Header */}
-      <div className="flex items-center justify-between ">
-        <div className="flex text-sm items-center min-w-41 gap-2">
-          <Filter className="size-4" />
-          Filters
-        </div>
-        <div className="flex items-center gap-2">
+    <div className="border shadow-xs text-sm rounded-lg p-0 relative flex items-center flex-1">
+      {/* Filter panel trigger */}
+      <Popover>
+        <PopoverTrigger className="flex items-center  h-full gap-2 justify-around w-full">
+          <Filter className="size-4 mx-2 align-center" />
+          <div className="flex-grow text-left align-bottom">Filters</div>
+          <ChevronDown className="size-4 mx-2" />
           {hasActiveFilters && (
             <Button
-              variant="ghost"
+              variant="destructive"
               size="sm"
               onClick={handleClearAll}
-              className="h-8 text-xs"
+              className="size-7 mx-1 text-xs"
             >
-              <X className="h-3 w-3 mr-1" />
-              Clear All
+              <X name="Clear all" className="size-4" />
             </Button>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="h-8"
-          >
-            {isExpanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      </div>
-
-      {/* Filter Options - Collapsible */}
-      {isExpanded && (
-        <div
-          className="space-y-4 p-4 border absolute top-9 right-0 bg-background min-w-58"
-          ref={panelRef}
-        >
-          {/* Featured Toggle */}
-          <div className="flex items-center space-x-2">
+        </PopoverTrigger>
+        <PopoverContent className="flex flex-col gap-4 sm:w-80 w-40">
+          {/* Featured Filter */}
+          <div className="flex gap-2">
             <Checkbox
               id="featured"
               checked={featuredOnly}
@@ -119,19 +89,17 @@ export default function FilterPanel() {
               Show only featured articles
             </Label>
           </div>
-
+          <Separator />
           {/* Author Filter */}
           <div className="space-y-2">
-            <Label htmlFor="author" className="text-sm font-medium">
-              Filter by Author
-            </Label>
+            <Label htmlFor="autor">Author</Label>
             <Input
               id="author"
               type="text"
               placeholder="Enter author name..."
               value={authorFilter}
               onChange={(e) => setAuthorFilter(e.target.value)}
-              className="h-9"
+              className="h-8 placeholder:text-sm "
             />
             {authorFilter && (
               <p className="text-xs text-muted-foreground">
@@ -139,57 +107,49 @@ export default function FilterPanel() {
               </p>
             )}
           </div>
-
-          {/* Date Range */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startDate" className="text-sm font-medium">
-                From Date
-              </Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="h-9"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endDate" className="text-sm font-medium">
-                To Date
-              </Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="h-9"
-              />
-            </div>
+          <Separator />
+          {/* Date Filter */}
+          <div className="space-y-2">
+            <Label htmlFor="Date" className="text-sm font-medium">
+              Date
+            </Label>
+            <DatePicker
+              setStartDate={setStartDate}
+              setEndDate={setEndDate}
+              range={{ from: startDate, to: endDate }}
+              id="date"
+              value={startDate}
+            />
           </div>
-
-          {/* Status Filter - Admin Only */}
+          {/* Status Filter */}
           {user && user.role === "admin" && (
-            <div className="space-y-2">
-              <Label htmlFor="status" className="text-sm font-medium">
-                Filter by Status (Admin)
-              </Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger id="status" className="h-9">
-                  <SelectValue placeholder="All statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="pending">Pending Review</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <Label htmlFor="status" className="text-sm font-medium">
+                  Status
+                </Label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger id="status" className="h-8">
+                    <SelectValue placeholder="All statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="pending">Pending Review</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
           )}
-        </div>
-      )}
+          <Separator />
+          <Button disabled={!hasActiveFilters} onClick={handleClearAll}>
+            Clear All
+          </Button>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

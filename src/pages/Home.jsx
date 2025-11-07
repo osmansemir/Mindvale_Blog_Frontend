@@ -19,7 +19,7 @@ function Home() {
           {/* <FeaturedArticles /> */}
 
           {/* Search,Sort and Filter Bar */}
-          <div className="flex gap-2 mb-6">
+          <div className="flex gap-2 mb-6 pr-5">
             <SearchBar />
             <SortDropdown />
             <FilterPanel />
