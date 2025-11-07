@@ -26,9 +26,9 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="relative w-44 max-w-2xl">
+    <div className="relative flex-grow md:flex-2">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
         <Input
           type="text"
           placeholder="Search articles by title, description, or tags..."

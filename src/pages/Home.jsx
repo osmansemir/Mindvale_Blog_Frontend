@@ -13,13 +13,13 @@ function Home() {
 
   return (
     <>
-      <main className="w-full min-h-screen mx-auto grid grid-cols-4 p-10">
-        <div className="col-span-3">
+      <main className="w-full md:min-h-screen mx-auto grid grid-cols-6 p-5 sm:p-16">
+        <div className="col-span-6 md:col-span-5 order-2 md:order-1">
           {/* Featured Articles Section */}
           {/* <FeaturedArticles /> */}
 
           {/* Search,Sort and Filter Bar */}
-          <div className="flex gap-2 mb-6 pr-5">
+          <div className="flex gap-2 mb-6 md:pr-5">
             <SearchBar />
             <SortDropdown />
             <FilterPanel />
@@ -45,7 +45,7 @@ function Home() {
             </>
           )}
         </div>
-        <div className="col-span-1">
+        <div className="col-span-6 md:col-span-1 order-1 md:order-2 ">
           {/* Tag Filter */}
           <div className="mb-6">
             <TagFilter />

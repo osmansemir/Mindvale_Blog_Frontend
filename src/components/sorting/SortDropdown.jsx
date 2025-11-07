@@ -5,8 +5,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { useArticles } from "../../hooks/useArticles";
+} from "@/components/ui/select";
+import { useArticles } from "@/hooks/useArticles";
 
 /**
  * SortDropdown - Dropdown to sort articles
@@ -42,15 +42,15 @@ export default function SortDropdown() {
   };
 
   return (
-    <div className="flex items-start gap-2">
+    <div className="flex items-start gap-2 w-16 md:flex-1">
       <Select value={currentValue} onValueChange={handleChange}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full">
           <SelectValue placeholder="Sort by..." />
         </SelectTrigger>
         <SelectContent>
           {sortOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+              <ArrowUpDown className="s-4 text-muted-foreground" />
               {option.label}
             </SelectItem>
           ))}

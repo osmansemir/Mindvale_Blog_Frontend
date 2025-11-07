@@ -19,7 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { DatePicker } from "../ui/DatePicker";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { useBreakpoints } from "@/hooks/useBreakpoints";
 
 /**
  * FilterPanel - Advanced filtering options for articles
@@ -27,6 +28,10 @@ import { DatePicker } from "../ui/DatePicker";
  */
 export default function FilterPanel() {
   const { user } = useAuth();
+  const breakpoint = useBreakpoints();
+
+  useEffect(() => console.log("breakpoint", breakpoint), [breakpoint]);
+
   const {
     featuredOnly,
     setFeaturedOnly,
@@ -41,9 +46,6 @@ export default function FilterPanel() {
     clearAllFilters,
   } = useArticles();
 
-  const [isExpanded, setIsExpanded] = useState(false);
-  const panelRef = useRef(null);
-
   const hasActiveFilters =
     featuredOnly ||
     authorFilter ||
@@ -56,12 +58,14 @@ export default function FilterPanel() {
   };
 
   return (
-    <div className="border shadow-xs text-sm rounded-lg p-0 relative flex items-center flex-1">
+    <div className="border shadow-xs h-9 text-sm rounded-lg p-0 relative flex items-center w-16 md:flex-1">
       {/* Filter panel trigger */}
       <Popover>
         <PopoverTrigger className="flex items-center  h-full gap-2 justify-around w-full">
-          <Filter className="size-4 mx-2 align-center" />
-          <div className="flex-grow text-left align-bottom">Filters</div>
+          <Filter className="size-4 ml-2 sm:mx-2 align-center" />
+          {breakpoint !== "zero" && breakpoint !== "sm" && (
+            <div className="flex-grow text-left align-bottom">Filters</div>
+          )}
           <ChevronDown className="size-4 mx-2" />
           {hasActiveFilters && (
             <Button

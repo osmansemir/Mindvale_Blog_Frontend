@@ -36,7 +36,7 @@ function Header() {
   // };
 
   return (
-    <div className="flex items-center px-14 sticky top-0 z-10 h-24 w-full bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+    <div className="flex items-center p-5 sm:px-14 sticky top-0 z-10 h-24 w-full bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="flex gap-4  justify-between items-center w-full ">
         <div className=" flex gap-4">
           <Link className="flex justify-center items-center gap-2" to="/">
