@@ -10,22 +10,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export function AlertAction({
+export function ConfirmActionDialog({
   children,
   action,
-  id,
   onConfirm,
   title = "Are you absolutely sure?",
-  description = "This action cannot be undone. This will permanently delete this article and remove it from our servers."
+  description = "This action cannot be undone.",
 }) {
-  // Support both interfaces: action(id) or onConfirm()
   const handleConfirm = (e) => {
     e.preventDefault();
-    if (onConfirm) {
-      onConfirm();
-    } else if (action && id) {
-      action(id);
-    }
+    onConfirm();
   };
 
   return (
@@ -34,14 +28,12 @@ export function AlertAction({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {description}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleConfirm}>
-            Delete
+            {action}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -49,4 +41,4 @@ export function AlertAction({
   );
 }
 
-export default AlertAction;
+export default ConfirmActionDialog;

@@ -58,7 +58,7 @@ export default function SubmitReviewButton({ articleId, status, onSuccess }) {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="default" size="sm" className="gap-2">
+        <Button variant="default" size="sm" className="gap-2 cursor-pointer">
           <Send className="h-4 w-4" />
           Submit for Review
         </Button>
