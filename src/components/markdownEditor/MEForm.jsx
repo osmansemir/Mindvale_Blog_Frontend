@@ -19,26 +19,22 @@ function MEForm({ children, className }) {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
   };
+
   const onSubmit = async (data) => {
     const newSlug = generateSlug(titleValue);
     const newData = { ...data, slug: newSlug };
 
     try {
-      // Validate slug
-      const slugExists = slugs.includes(initialSlug);
+      const slugExists = slugs.includes(newSlug);
       if (slugExists && newSlug !== initialSlug) {
         toast.error("Slug already exists. Please choose a different title.");
         return;
       }
-
-      // Save article
       if (inEditingMode) {
         await updateArticle(id, newData);
       } else {
         await addArticle(newData);
       }
-
-      // Update slugs array
       if (inEditingMode && newSlug !== initialSlug) {
         setSlugs(
           slugs
