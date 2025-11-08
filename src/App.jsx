@@ -17,6 +17,7 @@ import UsersList from "./pages/admin/UsersList";
 import UserDetail from "./pages/admin/UserDetail";
 import { Toaster } from "sonner";
 import DashboardLayout from "./components/layout/DashboardLayout";
+import { MarkdownEditorProvider } from "./context/MarkdownEditorContext";
 
 function App() {
   return (
@@ -62,8 +63,22 @@ function App() {
                     </Layout>
                   }
                 />
-                <Route path="/articles/new" element={<MarkdownEditor />} />
-                <Route path="/articles/edit/:id" element={<MarkdownEditor />} />
+                <Route
+                  path="/articles/new"
+                  element={
+                    <MarkdownEditorProvider>
+                      <MarkdownEditor />
+                    </MarkdownEditorProvider>
+                  }
+                />
+                <Route
+                  path="/articles/edit/:id"
+                  element={
+                    <MarkdownEditorProvider>
+                      <MarkdownEditor />
+                    </MarkdownEditorProvider>
+                  }
+                />
               </Route>
 
               {/* Protected Admin Routes  */}
