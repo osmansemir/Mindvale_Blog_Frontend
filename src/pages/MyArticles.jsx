@@ -12,7 +12,7 @@ import {
 import StatusBadge from "../components/article/StatusBadge";
 import SubmitReviewButton from "../components/article/SubmitReviewButton";
 import { Pen, Trash2, FileText, AlertCircle } from "lucide-react";
-import AlertAction from "../components/article/AlertAction";
+import ConfirmActionDialog from "../components/article/ConfirmActionDialog";
 
 export default function MyArticles() {
   const { getMyArticles, deleteArticle } = useArticles();
@@ -215,16 +215,21 @@ export default function MyArticles() {
                     )}
 
                     {/* Delete Button */}
-                    <AlertAction
+                    <ConfirmActionDialog
                       onConfirm={() => handleDelete(article._id)}
                       title="Delete Article"
                       description="Are you sure you want to delete this article? This action cannot be undone."
+                      action="Delete"
                     >
-                      <Button variant="destructive" size="sm">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="cursor-pointer"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                       </Button>
-                    </AlertAction>
+                    </ConfirmActionDialog>
                   </div>
                 </div>
               </CardContent>

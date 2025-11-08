@@ -1,7 +1,7 @@
 import { ItemActions } from "../ui/item";
 import { Button } from "../ui/button";
 import { useArticles } from "../../hooks/useArticles";
-import AlertAction from "./AlertAction";
+import ConfirmActionDialog from "./ConfirmActionDialog";
 import { useNavigate } from "react-router-dom";
 
 function ArtcileActions({ id }) {
@@ -17,11 +17,16 @@ function ArtcileActions({ id }) {
       <Button onClick={() => handleClick()} size="sm" className="">
         Edit
       </Button>
-      <AlertAction id={id} action={deleteArticle}>
+      <ConfirmActionDialog
+        action="Delete"
+        title="Are you absolutely sure?"
+        description="This action cannot be undone. This will permanently delete this article and remove it from our servers."
+        onConfirm={deleteArticle(id)}
+      >
         <Button size="sm" className="">
           Delete
         </Button>
-      </AlertAction>
+      </ConfirmActionDialog>
     </ItemActions>
   );
 }
