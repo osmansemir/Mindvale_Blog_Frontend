@@ -4,12 +4,15 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
   atomDark,
   gruvboxLight,
+  materialDark,
+  materialLight,
+  oneDark,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useTheme } from "../../hooks/useTheme";
 
 function MarkdownDisplay({ markdown }) {
   const { theme } = useTheme();
-  const style = theme === "light" ? gruvboxLight : atomDark;
+  const style = theme === "light" ? materialLight : oneDark;
 
   const components = {
     code: ({ inline, className, children, ...props }) => {
@@ -32,7 +35,7 @@ function MarkdownDisplay({ markdown }) {
   };
 
   return (
-    <div className="prose xl:prose-xl prose-pre:bg-[#F9F5D7] dark:prose-pre:bg-[#1D1F21] dark:prose-invert">
+    <div className="prose xl:prose-xl prose-pre:bg-[#FAFAFA] dark:prose-pre:bg-[#282C34] dark:prose-invert">
       <article className="mx-auto w-full   ">
         <Markdown remarkPlugins={[remarkGfm]} components={components}>
           {markdown}
