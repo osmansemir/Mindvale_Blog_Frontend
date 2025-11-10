@@ -2,12 +2,12 @@ import { Link } from "react-router-dom";
 
 function MELogo() {
   return (
-    <Link className="flex justify-center items-center gap-2" to="/">
+    <Link className="flex gap-2" to="/">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         id="svg1"
-        width="24"
-        height="24"
+        width="20"
+        height="20"
         version="1.1"
         viewBox="0 0 306.885 302.717"
       >
@@ -20,7 +20,7 @@ function MELogo() {
           ></path>
         </g>
       </svg>
-      <span className="inline-block text-md">Mindvale</span>
+      <span className="inline-block text-md">Mindvale Markdown Editor</span>
     </Link>
   );
 }

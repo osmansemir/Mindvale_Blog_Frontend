@@ -1,10 +1,6 @@
-import { useMarkdownEditor } from "../../hooks/useMarkdownEditor";
-import { Field } from "../ui/field";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { useMarkdownEditor } from "@/hooks/useMarkdownEditor";
+import { useArticles } from "@/hooks/useArticles";
+import { Field, FieldContent, FieldError } from "@/components/ui/field";
 import { Controller } from "react-hook-form";
 import {
   MultiSelector,
@@ -14,7 +10,6 @@ import {
   MultiSelectorList,
   MultiSelectorTrigger,
 } from "@/components/ui/multi-select";
-import { useArticles } from "../../hooks/useArticles";
 import { useMemo } from "react";
 
 function METags({ className }) {
@@ -30,49 +25,45 @@ function METags({ className }) {
 
   return (
     <Field className={className}>
-      <Controller
-        control={control}
-        name="tags"
-        render={({ field }) => (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <MultiSelector
-                values={
-                  field.value?.map((val) => {
-                    const option = tagOptions.find((opt) => opt.value === val);
-                    return option || { value: val, label: val };
-                  }) || []
-                }
-                onValuesChange={(selected) => {
-                  field.onChange(selected.map((item) => item.value));
-                }}
-                loop
-                className="max-w-md "
-              >
-                <MultiSelectorTrigger>
-                  <MultiSelectorInput placeholder="#Tags" />
-                </MultiSelectorTrigger>
-                <MultiSelectorContent>
-                  <MultiSelectorList>
-                    {tagOptions.map((tag) => (
-                      <MultiSelectorItem
-                        key={tag.value}
-                        value={tag.value}
-                        label={tag.value}
-                      >
-                        {tag.value}
-                      </MultiSelectorItem>
-                    ))}
-                  </MultiSelectorList>
-                </MultiSelectorContent>
-              </MultiSelector>
-            </TooltipTrigger>
-            <TooltipContent>
-              {errors.tags ? errors.tags.message : "Tags"}
-            </TooltipContent>
-          </Tooltip>
-        )}
-      />
+      <FieldContent>
+        <Controller
+          control={control}
+          name="tags"
+          render={({ field }) => (
+            <MultiSelector
+              values={
+                field.value?.map((val) => {
+                  const option = tagOptions.find((opt) => opt.value === val);
+                  return option || { value: val, label: val };
+                }) || []
+              }
+              onValuesChange={(selected) => {
+                field.onChange(selected.map((item) => item.value));
+              }}
+              loop
+              className="w-full rounded-0 "
+            >
+              <MultiSelectorTrigger>
+                <MultiSelectorInput placeholder="#Tags" />
+              </MultiSelectorTrigger>
+              <MultiSelectorContent>
+                <MultiSelectorList>
+                  {tagOptions.map((tag) => (
+                    <MultiSelectorItem
+                      key={tag.value}
+                      value={tag.value}
+                      label={tag.value}
+                    >
+                      {tag.value}
+                    </MultiSelectorItem>
+                  ))}
+                </MultiSelectorList>
+              </MultiSelectorContent>
+            </MultiSelector>
+          )}
+        />
+      </FieldContent>
+      {errors.tags && <FieldError>{errors.tags.message}</FieldError>}
     </Field>
   );
 }

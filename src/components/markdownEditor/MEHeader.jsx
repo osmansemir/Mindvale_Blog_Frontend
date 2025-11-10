@@ -8,15 +8,18 @@ import MEButtons from "@/components/markdownEditor/MEButtons";
 function MEHeader() {
   return (
     <>
-      <div className="flex w-full gap-4  justify-between font-bold items-center border-b px-6 h-14">
+      <div className="flex w-full gap-4  justify-between font-bold items-center border-b px-6 h-[50px]">
         <MELogo />
-        <ModeToggle className="self-end" />
+        <ModeToggle className="" />
+        {/* TODO: Change ModeToggle with a smaller switch */}
       </div>
-      <div className="flex  w-screen  justify-between font-bold items-center border-b px-6 min-h-16 py-4">
-        <METitleField />
-        <MEDescription />
-        <METags />
-        <MEButtons />
+      <div className="grid grid-cols-2  w-full gap-x-2 font-bold border-b px-6 min-h-[150px] pt-2">
+        <METitleField className="h-1/2" />
+        <MEDescription className="h-1/2" />
+        <METags className="h-1/2" />
+        <div className="flex h-1/2 justify-end">
+          <MEButtons />
+        </div>
       </div>
     </>
   );
