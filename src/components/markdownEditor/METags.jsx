@@ -41,9 +41,9 @@ function METags({ className }) {
                 field.onChange(selected.map((item) => item.value));
               }}
               loop
-              className="w-full rounded-0 "
+              className=""
             >
-              <MultiSelectorTrigger>
+              <MultiSelectorTrigger error={errors.tags}>
                 <MultiSelectorInput placeholder="#Tags" />
               </MultiSelectorTrigger>
               <MultiSelectorContent>

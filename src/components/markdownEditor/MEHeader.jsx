@@ -13,10 +13,10 @@ function MEHeader() {
         <ModeToggle className="" />
         {/* TODO: Change ModeToggle with a smaller switch */}
       </div>
-      <div className="grid grid-cols-2  w-full gap-x-2 font-bold border-b px-6 min-h-[150px] pt-2">
-        <METitleField className="h-1/2" />
-        <MEDescription className="h-1/2" />
-        <METags className="h-1/2" />
+      <div className="grid grid-cols-2  w-full gap-x-2 font-bold border-b px-6 h-[150px] pt-2">
+        <METitleField className="h-1/2 gap-1" />
+        <MEDescription className="h-1/2 gap-1" />
+        <METags className="h-1/2 gap-0" />
         <div className="flex h-1/2 justify-end">
           <MEButtons />
         </div>

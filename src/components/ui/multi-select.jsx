@@ -70,6 +70,17 @@ const MultiSelector = ({
     [value],
   );
 
+  const handleCreate = () => {
+    if (inputValue.trim()) {
+      const newOption = {
+        value: inputValue.toLowerCase(),
+        label: inputValue.toUpperCase(),
+      };
+      onValueChange(newOption);
+      setInputValue("");
+    }
+  };
+
   const handleKeyDown = useCallback(
     (e) => {
       e.stopPropagation();
@@ -175,6 +186,7 @@ const MultiSelector = ({
         activeIndex,
         setActiveIndex,
         ref: inputRef,
+        handleCreate,
       }}
     >
       <Command
@@ -193,7 +205,7 @@ const MultiSelector = ({
 };
 
 const MultiSelectorTrigger = forwardRef(
-  ({ className, children, ...props }, ref) => {
+  ({ className, children, error, ...props }, ref) => {
     const { value, onValueChange, activeIndex } = useMultiSelect();
 
     const mousePreventDefault = useCallback((e) => {
@@ -205,9 +217,21 @@ const MultiSelectorTrigger = forwardRef(
       <div
         ref={ref}
         className={cn(
-          "flex flex-wrap gap-1 p-1 py-2 ring-1 ring-muted rounded-lg bg-background",
+          "flex overflow-x-auto overflow-y-hidden gap-1 py-2 ring-1 ring-muted  ",
+          " scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent",
+          "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground",
+          "dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs",
+          "transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm",
+          "file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+          "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
           {
-            "ring-1 focus-within:ring-ring": activeIndex === -1,
+            " focus-within:border-ring  focus-within:ring-ring/50 focus-within:ring-[3px] ":
+              activeIndex === -1,
+          },
+          {
+            " border-destructive ring-destructive/20 focus-within:border-destructive focus-within:ring-destructive/20 focus-within:ring-[3px] ":
+              !!error,
           },
           className,
         )}
@@ -222,7 +246,7 @@ const MultiSelectorTrigger = forwardRef(
             )}
             variant={"secondary"}
           >
-            <span className="text-xs">{item.label}</span>
+            <span className="text-xs text-nowrap">{item.label}</span>
             <button
               aria-label={`Remove ${item} option`}
               aria-roledescription="button to remove option"
@@ -267,7 +291,8 @@ const MultiSelectorInput = forwardRef(({ className, ...props }, ref) => {
       onFocus={() => setOpen(true)}
       onClick={() => setActiveIndex(-1)}
       className={cn(
-        "ml-1 bg-transparent outline-none placeholder:text-muted-foreground flex-1 overflow-x",
+        "ml-1 placeholder:text-muted-foreground w-15 flex-grow",
+        "focus-visible:border-0 focus-visible:ring-0 border-0 focus-visible:outline-0",
         className,
         activeIndex !== -1 && "caret-transparent",
       )}
@@ -289,6 +314,7 @@ const MultiSelectorContent = forwardRef(({ children }, ref) => {
 MultiSelectorContent.displayName = "MultiSelectorContent";
 
 const MultiSelectorList = forwardRef(({ className, children }, ref) => {
+  const { inputValue, handleCreate } = useMultiSelect();
   return (
     <CommandList
       ref={ref}
@@ -299,7 +325,13 @@ const MultiSelectorList = forwardRef(({ className, children }, ref) => {
     >
       {children}
       <CommandEmpty>
-        <span className="text-muted-foreground">No results found</span>
+        <button
+          onClick={handleCreate}
+          className="w-full text-left px-2 py-1 hover:bg-accent rounded-md"
+        >
+          <span className="text-muted-foreground">Create: </span>
+          <span className="font-medium">{inputValue}</span>
+        </button>
       </CommandEmpty>
     </CommandList>
   );

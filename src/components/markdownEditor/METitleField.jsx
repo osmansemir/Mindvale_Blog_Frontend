@@ -16,7 +16,11 @@ function METitleField({ className }) {
           aria-invalid={errors.title ? "true" : "false"}
         />
       </FieldContent>
-      {errors.title && <FieldError>{errors.title.message}</FieldError>}
+      {errors.title && (
+        <FieldError className="align-top mt-0 pt-0">
+          {errors.title.message}
+        </FieldError>
+      )}
     </Field>
   );
 }

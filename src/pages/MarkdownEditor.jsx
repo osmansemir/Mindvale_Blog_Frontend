@@ -18,7 +18,7 @@ function MarkdownEditor() {
     <MEForm className="flex flex-col h-screen">
       <MEHeader />
 
-      <ScrollArea className="h-[calc(100vh-124px)]">
+      <ScrollArea className="h-[calc(100vh-210px)]">
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel>
             {/* Markdown Editor */}
