@@ -1,15 +1,15 @@
 import { Textarea } from "@/components/ui/textarea";
-import MarkdownDisplay from "@/components/article/MarkdownDisplay";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import MEFooter from "@/components/markdownEditor/MEFooter";
 import { useMarkdownEditor } from "@/hooks/useMarkdownEditor";
+import MEFooter from "@/components/markdownEditor/MEFooter";
 import MEForm from "@/components/markdownEditor/MEForm";
 import MEHeader from "@/components/markdownEditor/MEHeader";
+import MarkdownDisplay from "@/components/article/MarkdownDisplay";
 
 function MarkdownEditor() {
   const { markdownValue, register } = useMarkdownEditor();
@@ -25,7 +25,7 @@ function MarkdownEditor() {
             <div className="h-full">
               <Textarea
                 {...register("markdown")}
-                className="h-full w-full pb-16 font-mono rounded-none resize-none focus-visible:ring-0 border-0 focus-visible:border-0"
+                className="h-full pt-5 w-full pb-16 font-mono rounded-none resize-none focus-visible:ring-0 border-0 focus-visible:border-0"
                 placeholder="Type your markdown here..."
               />
             </div>
@@ -35,7 +35,7 @@ function MarkdownEditor() {
 
           <ResizablePanel>
             {/* Preview */}
-            <div className="h-full p-3 overflow-y-auto pb-16">
+            <div className="h-full p-3 pt-5 overflow-y-auto pb-16">
               <MarkdownDisplay markdown={markdownValue} />
             </div>
           </ResizablePanel>

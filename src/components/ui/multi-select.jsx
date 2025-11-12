@@ -32,8 +32,6 @@ const useMultiSelect = () => {
  * MultiSelect Docs: {@link: https://shadcn-extension.vercel.app/docs/multi-select}
  */
 
-// TODO : expose the visibility of the popup
-
 function searchForValue(source, value) {
   for (let i = 0; i < source.length; i++) {
     if (source[i].value === value.value) {
@@ -70,6 +68,7 @@ const MultiSelector = ({
     [value],
   );
 
+  // TODO: Create New Tag Option
   const handleCreate = () => {
     if (inputValue.trim()) {
       const newOption = {
